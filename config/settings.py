@@ -57,8 +57,6 @@ INSTALLED_APPS = [
     'bootstrap_datepicker_plus',
     'online_users',
     'rest_framework',
-    'rest_framework_simplejwt',
-    'rest_framework_simplejwt.token_blacklist',
     'captcha',
     'admin1',
 ]
