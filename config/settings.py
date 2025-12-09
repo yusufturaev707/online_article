@@ -165,16 +165,9 @@ MODELTRANSLATION_LANGUAGES = ('uz', 'en', 'ru')
 LOGIN_REDIRECT_URL = "/ax_clone_site/"
 LOGIN_URL = '/ax_clone_site/login/'
 
-if DEBUG:
-    STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static/')]
-    STATIC_URL = '/static/'
-    MEDIA_URL = '/media/'
-else:
-    STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
-    STATIC_URL = '/ax_clone_site/static/'
-    MEDIA_URL = '/ax_clone_site/media/'
-
-
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+STATIC_URL = '/ax_clone_site/static/'
+MEDIA_URL = '/ax_clone_site/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
 AUTH_USER_MODEL = 'user_app.User'
