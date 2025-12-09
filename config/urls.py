@@ -9,7 +9,7 @@ from article_app.views import set_language
 from django.conf.urls import handler404
 
 urlpatterns = [
-    path('i18n/', include('django.conf.urls.i18n')),
+    path('ax_clone_site/i18n/', include('django.conf.urls.i18n')),
 ]
 
 urlpatterns += [
@@ -39,12 +39,12 @@ urlpatterns += i18n_patterns(
     path('ax_clone_site/admin1/', include('admin1.urls')),
 
     # extra
-    path('ckeditor/', include('ckeditor_uploader.urls')),
-    path("set_language/<str:language>", set_language, name="set-language"),
+    path('ax_clone_site/ckeditor/', include('ckeditor_uploader.urls')),
+    path("ax_clone_site/set_language/<str:language>", set_language, name="set-language"),
     prefix_default_language=False,
 )
 if settings.DEBUG:
     # ... media fayllar
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
-handler404 = 'user_app.views.error_404'
+handler404 = 'ax_clone_site/user_app.views.error_404'
