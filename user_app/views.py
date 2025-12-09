@@ -2126,7 +2126,7 @@ def error_404(request, exception):
     return render(request, 'user_app/error_404.html')
 
 
-def no_ethernet(request):
+def error_500(request, exception):
     return render(request, 'user_app/handler500.html')
 
 
