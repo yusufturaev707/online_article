@@ -13,35 +13,38 @@ urlpatterns = [
 ]
 
 urlpatterns += [
-    re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
-    re_path(r'^static/(?P<path>.*)$', serve, {'document_root': settings.STATIC_ROOT}),
+    re_path(r'^ax_clone_site/media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+    re_path(r'^ax_clone_site/static/(?P<path>.*)$', serve, {'document_root': settings.STATIC_ROOT}),
 ]
 
+
 urlpatterns += i18n_patterns(
-    path('admin/', admin.site.urls),
-    path('captcha/', include('captcha.urls')),
-    path('', include('article_app.urls')),
-    path('profile/', include('user_app.urls')),
-    path('journal/', include('journal.urls')),
-    path('post/', include('post.urls')),
-    path('fileapp/', include('fileapp.urls')),
+    path('ax_clone_site/admin/', admin.site.urls),
+    path('ax_clone_site/captcha/', include('captcha.urls')),
+    path('ax_clone_site/', include('article_app.urls')),
+    path('ax_clone_site/profile/', include('user_app.urls')),
+    path('ax_clone_site/journal/', include('journal.urls')),
+    path('ax_clone_site/post/', include('post.urls')),
+    path('ax_clone_site/fileapp/', include('fileapp.urls')),
 
     # Test Uploads
-    path('test_maker/', include('test_maker.urls')),
-    path('expert/', include('expert.urls')),
-    path('moderator/', include('moderator.urls')),
-    path('question/', include('question.urls')),
+    path('ax_clone_site/test_maker/', include('test_maker.urls')),
+    path('ax_clone_site/expert/', include('expert.urls')),
+    path('ax_clone_site/moderator/', include('moderator.urls')),
+    path('ax_clone_site/question/', include('question.urls')),
 
     # Pupil
-    path('pupil/', include('pupil.urls')),
-    path('exam/', include('exam.urls')),
-    path('admin1/', include('admin1.urls')),
+    path('ax_clone_site/pupil/', include('pupil.urls')),
+    path('ax_clone_site/exam/', include('exam.urls')),
+    path('ax_clone_site/admin1/', include('admin1.urls')),
 
     # extra
     path('ckeditor/', include('ckeditor_uploader.urls')),
     path("set_language/<str:language>", set_language, name="set-language"),
     prefix_default_language=False,
 )
-urlpatterns += [] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+if settings.DEBUG:
+    # ... media fayllar
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 handler404 = 'user_app.views.error_404'
