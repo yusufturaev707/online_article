@@ -1908,7 +1908,7 @@ def get_data_ps(request):
 
         try:
             url = f"https://imei_api.uzbmb.uz/compress?imie={jshshr}&ps={ps.upper()}"
-            response = requests.get(url, verify=True, timeout=3)
+            response = requests.get(url, verify=False, timeout=3)
 
             data = json.loads(response.text)
         except Exception as e:
