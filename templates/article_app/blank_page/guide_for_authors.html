@@ -1,6 +1,7 @@
 {% extends 'article_app/base.html' %}
 {% load static %}
 {% load i18n %}
+{% load bleach_filters %}
 {% block title %}
     {% trans "Mualliflar uchun qo'llanma" %}
 {% endblock %}
@@ -9,7 +10,7 @@
          style="background-color: white; padding:10px; border-radius: 4px; box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;;">
         <div class="container">
             <br>
-            <p>{{ guide_for_author.body|safe }}</p>
+            <p>{{ guide_for_author.body|bleach_clean }}</p>
         </div>
     </div>
     <br>

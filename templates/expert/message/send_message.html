@@ -1,3 +1,4 @@
+{% load bleach_filters %}
 <table class="body-wrap" style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; width: 100%; background-color: #f6f6f6; margin: 0;" bgcolor="#f6f6f6">
     <tbody>
         <tr style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
@@ -29,7 +30,7 @@
                                             <b>Ekspertlar xulosasi:</b><br>
                                             {% for item in items %}
                                                 <p><i><b>{{ forloop.counter }} - ekspert:</b></i></p>
-                                                {{ item.message|safe }}
+                                                {{ item.message|bleach_clean }}
                                             {% endfor %}
                                         </td>
                                     </tr>

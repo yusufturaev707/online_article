@@ -1,6 +1,7 @@
 {% extends 'article_app/base.html' %}
 {% load i18n %}
 {% load static %}
+{% load bleach_filters %}
 {% block title %}
     {% trans Jurnal haqida %}
 {% endblock %}
@@ -11,7 +12,7 @@
             <br>
             <center><h4 class="title">{{ ob.title }}</h4></center>
             <br>
-            <p>{{ ob.body|safe }}</p>
+            <p>{{ ob.body|bleach_clean }}</p>
         </div>
     </div>
     <br>

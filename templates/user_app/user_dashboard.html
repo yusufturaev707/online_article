@@ -1,6 +1,7 @@
 {% extends 'user_app/base.html' %}
 {% load i18n %}
 {% load static %}
+{% load bleach_filters %}
 {% block title %}
     Maqolalarim
 {% endblock %}
@@ -367,7 +368,7 @@
                                                                      aria-labelledby="headingOne"
                                                                      data-parent="#accordion">
                                                                     <div class="card-body">
-                                                                        {{ review.comment|safe }}
+                                                                        {{ review.comment|bleach_clean }}
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -701,7 +702,7 @@
                                                                      aria-labelledby="headingOne"
                                                                      data-parent="#accordion">
                                                                     <div class="card-body">
-                                                                        {{ review.comment|safe }}
+                                                                        {{ review.comment|bleach_clean }}
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -1055,7 +1056,7 @@
                                                                      aria-labelledby="headingOne"
                                                                      data-parent="#accordion">
                                                                     <div class="card-body">
-                                                                        {{ review.comment|safe }}
+                                                                        {{ review.comment|bleach_clean }}
                                                                     </div>
                                                                 </div>
                                                             </div>

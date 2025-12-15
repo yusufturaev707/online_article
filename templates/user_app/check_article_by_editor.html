@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load static %}
+{% load bleach_filters %}
 <h2 class="page-header viewArticleFont">
     {% trans "Maqola tekshirish" %}
 </h2>
@@ -12,7 +13,7 @@
             <div class="col-md-10">
                 <table>
                     <tr>
-                        <td><p><b>{% trans "Mavzu:" %} </b>{{ article.title|safe }}</p></td>
+                        <td><p><b>{% trans "Mavzu:" %} </b>{{ article.title|bleach_clean }}</p></td>
                     </tr>
                     <br>
                     <tr>
@@ -27,10 +28,10 @@
                             <br><i>{{ article.author.email }}</i></td>
                     </tr>
                     <tr>
-                        <td><p></p><b>{% trans "Qisqacha mazmuni:" %} </b>{{ article.abstract|safe }}</td>
+                        <td><p></p><b>{% trans "Qisqacha mazmuni:" %} </b>{{ article.abstract|bleach_clean }}</td>
                     </tr>
                     <tr>
-                        <td><b>{% trans "Kalit so'zlar:" %} </b>{{ article.keywords|safe }}</td>
+                        <td><b>{% trans "Kalit so'zlar:" %} </b>{{ article.keywords|bleach_clean }}</td>
                     </tr>
                     <br>
                     <tr>
@@ -317,7 +318,7 @@
                                                     <div id="collapseOne{{ item.id }}" class="collapse"
                                                          aria-labelledby="headingOne" data-parent="#accordion{{ item.id }}">
                                                         <div class="card-body">
-                                                            {{ item.comment|safe }}
+                                                            {{ item.comment|bleach_clean }}
                                                         </div>
                                                     </div>
                                                 </div>

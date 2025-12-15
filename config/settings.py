@@ -268,3 +268,34 @@ EMAIL_USE_SSL = False
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'uzbmb.uz@gmail.com'  # sender's email-id
 EMAIL_HOST_PASSWORD = 'hbqb wclq jmez pucy'  # password associated with above email-id
+
+# Django Bleach - XSS himoyasi
+BLEACH_ALLOWED_TAGS = [
+    'p', 'b', 'i', 'u', 'em', 'strong', 'a', 'br', 'hr',
+    'ul', 'ol', 'li', 'blockquote', 'code', 'pre',
+    'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+    'table', 'thead', 'tbody', 'tr', 'th', 'td',
+    'img', 'div', 'span', 'sub', 'sup',
+    'iframe',  # YouTube/media embed uchun
+]
+
+BLEACH_ALLOWED_ATTRIBUTES = {
+    '*': ['class', 'style', 'id'],
+    'a': ['href', 'title', 'target', 'rel'],
+    'img': ['src', 'alt', 'title', 'width', 'height'],
+    'iframe': ['src', 'width', 'height', 'frameborder', 'allowfullscreen'],
+    'table': ['border', 'cellpadding', 'cellspacing'],
+    'td': ['colspan', 'rowspan'],
+    'th': ['colspan', 'rowspan'],
+}
+
+BLEACH_ALLOWED_STYLES = [
+    'color', 'background-color', 'font-size', 'font-weight', 'font-style',
+    'text-align', 'text-decoration', 'margin', 'padding', 'border',
+    'width', 'height',
+]
+
+BLEACH_ALLOWED_PROTOCOLS = ['http', 'https', 'mailto']
+
+BLEACH_STRIP_TAGS = True
+BLEACH_STRIP_COMMENTS = True

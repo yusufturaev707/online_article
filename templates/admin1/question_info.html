@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load static %}
+{% load bleach_filters %}
 
 <div class="modal fade viewArticleFont" id="view_question_info_admin1_modal">
     <div class="modal-dialog modal-xl">
@@ -79,7 +80,7 @@
                     {% endif %}
                     <tr>
                         <td><b>{% trans "Yaratilgan vaqti:" %}</b></td>
-                        <td>{{ question.created_at|safe|slice:19 }}</td>
+                        <td>{{ question.created_at|bleach_clean|slice:19 }}</td>
                     </tr>
                     {% if objects.count > 0 %}
                         {% for array, job in data %}
@@ -101,12 +102,12 @@
                                     <span class="badge badge-info">{{ job.status_test.name }}</span>
                                 {% endif %} 
                                     <br>
-                                    <b>{% trans "Olgan vaqti:" %}</b> {{ job.job_given_time|safe|slice:19 }} <br>
+                                    <b>{% trans "Olgan vaqti:" %}</b> {{ job.job_given_time|bleach_clean|slice:19 }} <br>
                                 </td>
                             </tr>
                             {% if job.is_check %}
                             	{% if job.result == 0 or job.result == 2 %}
-                            		<tr><td colspan="2"><b>{% trans "Etiroz matni:" %}</b>{{ job.message|safe }}</td></tr>
+                            		<tr><td colspan="2"><b>{% trans "Etiroz matni:" %}</b>{{ job.message|bleach_clean }}</td></tr>
                             	{% endif %}
                                 <tr>
                                 <td colspan="2">
@@ -164,8 +165,8 @@
                                 {% elif moderator.status.key == 1 %}
                                     <span class="badge badge-success">{{ moderator.status.name }}</span>
                                 {% endif %} <br>
-                                <b>{% trans "Olgan vaqti:" %}</b> {{ moderator.job_given_time|safe|slice:19 }} <br>
-                                <b>{% trans "Tugatgan vaqti:" %}</b> {{ moderator.job_finish_time|safe|slice:19 }} <br>
+                                <b>{% trans "Olgan vaqti:" %}</b> {{ moderator.job_given_time|bleach_clean|slice:19 }} <br>
+                                <b>{% trans "Tugatgan vaqti:" %}</b> {{ moderator.job_finish_time|bleach_clean|slice:19 }} <br>
                             </td>
                         </tr>
                     {% endif %}

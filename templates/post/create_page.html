@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load static %}
+{% load bleach_filters %}
 <form class="create_page_form forshadow" data-parsley-validate="true" method="post" data-url="{% url 'create_page' %}">
     {% csrf_token %}
     {{ form.media }}
@@ -26,13 +27,13 @@
                     <div class="form-group row m-b-15">
                         <label class="col-form-label">{% trans "Matn" %}</label>
                         <div class="col-md-12 col-sm-12">
-                            {{ form.body|safe }}
+                            {{ form.body|bleach_clean }}
                         </div>
                     </div>
                     <div class="form-group row m-b-15">
                         <label class="col-form-label">{% trans "Nashr holari" %}</label>
                         <div class="col-md-12 col-sm-12">
-                            {{ form.is_publish|safe }}
+                            {{ form.is_publish|bleach_clean }}
                         </div>
                     </div>
                 </div>

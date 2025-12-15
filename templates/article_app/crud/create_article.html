@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load static %}
+{% load bleach_filters %}
 <form class="create_article_form" method="post" data-url="{% url 'create_article' %}">
     {% csrf_token %}
     {{ form.media }}
@@ -43,7 +44,7 @@
                         <label class="col-md-3 col-sm-3 col-form-label">{% trans "Mavzu" %} <span
                                 class="text-danger">*</span></label>
                         <div class="col-md-9 col-sm-9">
-                            {{ form.title|safe }}
+                            {{ form.title|bleach_clean }}
                         </div>
                     </div>
                 </div>

@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load static %}
+{% load bleach_filters %}
 <form method="post" data-url="{% url 'check_current_test_expert' test.id %}" data-parsley-validate="true" enctype="multipart/form-data"
       id="check_current_test_expert_form">
     {% csrf_token %}
@@ -53,7 +54,7 @@
                         {% endif %}
                         <tr>
                             <td><b>{% trans "Qaysi qismga tegishligiga izoh:" %}</b></td>
-                            <td>{{ test.submission_test.submission.link_literature|safe }}</td>
+                            <td>{{ test.submission_test.submission.link_literature|bleach_clean }}</td>
                         </tr>
                         <tr>
                             <td><b>{% trans "Holati:" %}</b></td>

@@ -1,5 +1,6 @@
 {% extends 'article_app/base.html' %}
 {% load static %}
+{% load bleach_filters %}
 {% block title %}
 {{ post.title }}
 {% endblock %}
@@ -10,7 +11,7 @@
 		<center><h2 class="title">{{ post.title }}</h2></center>
 			<i class="fas fa-md fa-fw m-r-10 fa-calendar-alt"></i><span class="text-inverse">{{ post.created_at }}</span><br><br>
 			<center><img src="{{ post.img.url}}"  width="50%" alt="" /></center><br>
-		<p>{{ post.desc|safe }}</p>
+		<p>{{ post.desc|bleach_clean }}</p>
 	</div>		
 </div>
 {% endblock %}

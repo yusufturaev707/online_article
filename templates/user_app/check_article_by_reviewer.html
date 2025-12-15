@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load static %}
+{% load bleach_filters %}
 <h2 class="page-header viewArticleFont">
     {% trans "Maqola tekshirish" %}
 </h2>
@@ -9,7 +10,7 @@
             <div class="col-md-12">
                 <table style="margin-left: 3%;">
                     <tr>
-                        <td><p><b>{% trans "Mavzu:" %} </b>{{ article.title|safe }}</p></td>
+                        <td><p><b>{% trans "Mavzu:" %} </b>{{ article.title|bleach_clean }}</p></td>
                     </tr>
                     <tr>
                         <td><p><b>{% trans "Rukn:" %} </b>{{ article.section.name }}</p></td>
@@ -19,10 +20,10 @@
                     </tr>
 
                     <tr>
-                        <td><p></p><b>{% trans "Qisqacha mazmuni:" %} </b>{{ article.abstract|safe }}</td>
+                        <td><p></p><b>{% trans "Qisqacha mazmuni:" %} </b>{{ article.abstract|bleach_clean }}</td>
                     </tr>
                     <tr>
-                        <td><b>{% trans "Kalit so'zlar:" %} </b>{{ article.keywords|safe }}</td>
+                        <td><b>{% trans "Kalit so'zlar:" %} </b>{{ article.keywords|bleach_clean }}</td>
                     </tr>
                     <br>
                     <tr>
@@ -109,7 +110,7 @@
                             <div class="card-body">
                                 <h5 class="card-title">{% trans "Taqriz bayoni" %}</h5>
                                 <p class="card-text">
-                                    {{ article_review.comment|safe }}
+                                    {{ article_review.comment|bleach_clean }}
                                 </p>
                             </div>
                         </div>
