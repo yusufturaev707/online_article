@@ -61,11 +61,14 @@ def set_language(request, language=None):
     if language not in valid_languages:
         language = settings.LANGUAGE_CODE
 
+    print(f"valid_languages: {language}")
+
     # Tilni aktivlashtirish
     activate(language)
 
     # Qaytish URL'ini olish
     next_url = request.POST.get('next') or request.GET.get('next')
+    print(f"next_url: {next_url}")
     if not next_url:
         next_url = request.META.get('HTTP_REFERER', '/ax_clone_site/')
 
