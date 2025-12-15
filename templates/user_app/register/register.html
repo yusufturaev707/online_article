@@ -176,6 +176,7 @@ $('.registerForm').on('submit', function (e) {
 
                 if (response.success) {
                     $('#registerFormError').html(`<span class="text-success">${response.message}</span>`);
+                    window.location.reload();
                     // Kerak bo‘lsa: window.location.href = "/";
                 } else {
                     // CAPTCHA yoki boshqa xatolikni ajratib ko‘rsatish
