@@ -54,6 +54,7 @@ def set_language(request, language=None):
     # POST dan yoki URL dan tilni olish
     if request.method == 'POST':
         language = request.POST.get('language')
+        print(f"language: {language}")
 
     # Tilni tekshirish
     valid_languages = [lang[0] for lang in settings.LANGUAGES]
