@@ -4,10 +4,17 @@ import time
 from django.core.validators import FileExtensionValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 
 class JournalYear(models.Model):
-    year = models.IntegerField(blank=True, null=True)
+    year = models.PositiveBigIntegerField(
+        default=0,
+        validators=[
+            MinValueValidator(1995, message="Son 1995 dan kichik bo'lishi mumkin emas."),
+            MaxValueValidator(2100, message="Son 2100 dan katta bo'lishi mumkin emas.")
+        ]
+    )
     status = models.BooleanField(default=True)
     year_img = models.ImageField(upload_to="image_year/", null=True, blank=True,
                               validators=[FileExtensionValidator(allowed_extensions=['jpeg', 'jpg', 'png'])],
@@ -18,7 +25,7 @@ class JournalYear(models.Model):
 
 
 class JournalNumber(models.Model):
-    number = models.IntegerField(blank=True, null=True)
+    number = models.PositiveBigIntegerField(default=0)
     status = models.BooleanField(default=True)
 
     def __str__(self):
