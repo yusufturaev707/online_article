@@ -66,19 +66,21 @@
                             });
                             window.location.reload();
                         } else {
-                            let decodedMessage = decodeHtml(response.message);
+                            let cleanMessage = response.message
+                                .replace(/<ul[^>]*>/g, '')
+                                .replace(/<\/ul>/g, '')
+                                .replace(/<li>/g, '• ')
+                                .replace(/<\/li>/g, '\n')
+                                .replace(/&#x27;/g, "'")
+                                .replace(/year/g, 'Yil');
+
                             swal({
-                                title: decodedMessage,
+                                title: "Xatolik!",
                                 icon: 'error',
-                                timer: 4000,
+                                text: cleanMessage,
+                                timer: 3000,
                                 html: true
                             });
-
-                            function decodeHtml(html) {
-                                let txt = document.createElement("textarea");
-                                txt.innerHTML = html;
-                                return txt.value;
-                            }
                         }
                     },
                     error: function (error) {
