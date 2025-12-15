@@ -141,7 +141,7 @@ LANGUAGE_CODE = 'uz'
 TIME_ZONE = 'Asia/Tashkent'
 
 USE_I18N = True
-LANGUAGE_COOKIE_NAME = 'django_language'
+LANGUAGE_COOKIE_NAME = 'clone_django_language'
 LANGUAGE_COOKIE_AGE = None
 LANGUAGE_COOKIE_DOMAIN = None
 LANGUAGE_COOKIE_PATH = '/ax_clone_site/'
