@@ -56,7 +56,7 @@
                                     <div class="form-group row m-b-15"
                                          style="background-color: #eeeeee; padding: 10px; border-radius: 5px;border: 1px solid #afafaf;">
                                         <div class="col-md-12 col-sm-12">
-                                            {{ form.title|bleach_clean }}
+                                            {{ form.title }}
                                         </div>
                                     </div>
                                 </div>
@@ -67,7 +67,7 @@
                                     <div class="form-group row m-b-15"
                                          style="background-color: #eeeeee; padding: 10px; border-radius: 5px;border: 1px solid #afafaf;">
                                         <div class="col-md-12 col-sm-12">
-                                            {{ form.title_en|bleach_clean }}
+                                            {{ form.title_en }}
                                         </div>
                                     </div>
                                 </div>
@@ -142,13 +142,13 @@
                                 <div class="col-md-12">
                                     <h6>{% trans "Qisqacha mazmuni (o'zbekcha)" %}</h6>
                                     <div class="form-group row m-b-15" style="border: 1px solid #d9d9d9">
-                                        {{ form.abstract|bleach_clean }}
+                                        {{ form.abstract }}
                                     </div>
                                 </div>
                                 <div class="col-md-12" style="margin-top: 1em">
                                     <h6> {% trans "Kalit so'zlar (o'zbekcha)" %}</h6>
                                     <div class="form-group row m-b-15" style="border: 1px solid #d9d9d9">
-                                        {{ form.keywords|bleach_clean }}
+                                        {{ form.keywords }}
                                     </div>
                                 </div>
                                 <div class="col-md-12">
@@ -156,33 +156,33 @@
                                     <div class="form-group row m-b-15"
                                          style="background-color: #eeeeee; padding: 10px; border-radius: 5px;border: 1px solid #afafaf;">
                                         <div class="col-md-12 col-sm-12">
-                                            {{ form.title_en|bleach_clean }}
+                                            {{ form.title_en }}
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-md-12">
                                     <h6>{% trans "Qisqacha mazmuni (inglizcha)" %}</h6>
                                     <div class="form-group row m-b-15" style="border: 1px solid #d9d9d9">
-                                        {{ form.abstract_en|bleach_clean }}
+                                        {{ form.abstract_en }}
                                     </div>
                                 </div>
                                 <div class="col-md-12">
                                     <h6>{% trans "Kalit so'zlar (inglizcha)" %}</h6>
                                     <div class="form-group row m-b-15" style="border: 1px solid #d9d9d9">
-                                        {{ form.keywords_en|bleach_clean }}
+                                        {{ form.keywords_en }}
                                     </div>
                                 </div>
                             {% elif article.article_lang.key == 'en' %}
                                 <div class="col-md-12">
                                     <h6>{% trans "Qisqacha mazmuni (inglizcha)" %}</h6>
                                     <div class="form-group row m-b-15" style="border: 1px solid #d9d9d9">
-                                        {{ form.abstract_en|bleach_clean }}
+                                        {{ form.abstract_en }}
                                     </div>
                                 </div>
                                 <div class="col-md-12">
                                     <h6>{% trans "Kalit so'zlar (inglizcha)" %}</h6>
                                     <div class="form-group row m-b-15" style="border: 1px solid #d9d9d9">
-                                        {{ form.keywords_en|bleach_clean }}
+                                        {{ form.keywords_en }}
                                     </div>
                                 </div>
                                 <div class="col-md-12">
@@ -190,20 +190,20 @@
                                     <div class="form-group row m-b-15"
                                          style="background-color: #eeeeee; padding: 10px; border-radius: 5px;border: 1px solid #afafaf;">
                                         <div class="col-md-12 col-sm-12">
-                                            {{ form.title|bleach_clean }}
+                                            {{ form.title }}
                                         </div>
                                     </div>
                                 </div>
                                  <div class="col-md-12">
                                     <h6>{% trans "Qisqacha mazmuni (o'zbekcha)" %}</h6>
                                     <div class="form-group row m-b-15" style="border: 1px solid #d9d9d9">
-                                        {{ form.abstract|bleach_clean }}
+                                        {{ form.abstract }}
                                     </div>
                                 </div>
                                 <div class="col-md-12" style="margin-top: 1em">
                                     <h6> {% trans "Kalit so'zlar (o'zbekcha)" %}</h6>
                                     <div class="form-group row m-b-15" style="border: 1px solid #d9d9d9">
-                                        {{ form.keywords|bleach_clean }}
+                                        {{ form.keywords }}
                                     </div>
                                 </div>
                             {% endif %}
