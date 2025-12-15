@@ -72,17 +72,14 @@
                         let items = response.data;
                         tableBody.empty();
                         $.each(items, function (index, item) {
-                            let row = '<tr>' +
-                                '<td>' + item.id + '</td>' +
-                                '<td>' + item.fio + '</td>' +
-                                '<td>' + item.pnfl + '</td>' +
-                                '<td>' + item.subject + '</td>' +
-                                '<td>' + item.p1 + '</td>' +
-                                '<td>' + item.p2 + '</td>' +
-                                '<td>' + item.p3 + '</td>' +
-                                '<td>' + item.t1 + '</td>' +
-                                '<td>' + item.t2 + '</td>' +
-                                '</tr>';
+                            // Safe DOM manipulation - use textContent instead of string concatenation
+                            let row = document.createElement('tr');
+                            let cells = [item.id, item.fio, item.pnfl, item.subject, item.p1, item.p2, item.p3, item.t1, item.t2];
+                            cells.forEach(function(cellData) {
+                                let td = document.createElement('td');
+                                td.textContent = cellData;
+                                row.appendChild(td);
+                            });
                             tableBody.append(row);
                         });
                     },
@@ -107,17 +104,14 @@
                             let items = response.data;
                             tableBody.empty();
                             $.each(items, function (index, item) {
-                                let row = '<tr>' +
-                                    '<td>' + item.id + '</td>' +
-                                    '<td>' + item.fio + '</td>' +
-                                    '<td>' + item.pnfl + '</td>' +
-                                    '<td>' + item.subject + '</td>' +
-                                    '<td>' + item.p1 + '</td>' +
-                                    '<td>' + item.p2 + '</td>' +
-                                    '<td>' + item.p3 + '</td>' +
-                                    '<td>' + item.t1 + '</td>' +
-                                    '<td>' + item.t2 + '</td>' +
-                                    '</tr>';
+                                // Safe DOM manipulation - use textContent instead of string concatenation
+                                let row = document.createElement('tr');
+                                let cells = [item.id, item.fio, item.pnfl, item.subject, item.p1, item.p2, item.p3, item.t1, item.t2];
+                                cells.forEach(function(cellData) {
+                                    let td = document.createElement('td');
+                                    td.textContent = cellData;
+                                    row.appendChild(td);
+                                });
                                 tableBody.append(row);
                             });
                             $('#fileDownloadBtn').css("display", "block");

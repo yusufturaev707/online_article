@@ -149,11 +149,11 @@
                     type: 'doughnut',
                     data: {
                     datasets: [{
-                            data: {{ data1|safe }},
+                            data: JSON.parse('{{ data1|escapejs }}'),
                             backgroundColor: ['#ee4848', '#43ad07', '#0644a9', '#6aa3f6', '#f1b455'],
                             label: 'Population'
                         }],
-                    labels: {{ labels1|safe }}
+                    labels: JSON.parse('{{ labels1|escapejs }}')
                     },
                     options: {
                          responsive: true,
@@ -167,11 +167,11 @@
                     type: 'doughnut',
                     data: {
                     datasets: [{
-                            data: {{ data2|safe }},
+                            data: JSON.parse('{{ data2|escapejs }}'),
                             backgroundColor: ['#025eff', '#f14058', '#A9A9A9', '#C0C0C0', '#D3D3D3'],
                             label: 'Population'
                         }],
-                    labels: {{ labels2|safe }}
+                    labels: JSON.parse('{{ labels2|escapejs }}')
                     },
                     options: {
                          responsive: true,
@@ -185,11 +185,11 @@
                     type: 'doughnut',
                     data: {
                     datasets: [{
-                            data: {{ data3|safe }},
+                            data: JSON.parse('{{ data3|escapejs }}'),
                             backgroundColor: ['#8242e3', '#43ad07', '#0644a9', '#6aa3f6', '#f1b455'],
                             label: 'Population'
                         }],
-                    labels: {{ labels2|safe }}
+                    labels: JSON.parse('{{ labels2|escapejs }}')
                     },
                     options: {
                          responsive: true,
@@ -203,11 +203,11 @@
                     type: 'doughnut',
                     data: {
                     datasets: [{
-                            data: {{ data4|safe }},
+                            data: JSON.parse('{{ data4|escapejs }}'),
                             backgroundColor: ['#03b703', '#4e1e98', '#0644a9', '#6aa3f6', '#f1b455'],
                             label: 'Population'
                         }],
-                    labels: {{ labels2|safe }}
+                    labels: JSON.parse('{{ labels2|escapejs }}')
                     },
                     options: {
                          responsive: true,

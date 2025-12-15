@@ -1,4 +1,5 @@
 import json
+import re
 
 import requests
 from django.contrib.auth.forms import PasswordChangeForm
@@ -216,7 +217,7 @@ def edit_region(request, pk):
             }
             return JsonResponse(data)
     else:
-        form = CreateCountryForm(instance=region)
+        form = CreateRegionForm(instance=region)
         context = {
             'form': form,
             'region': region,
@@ -353,7 +354,7 @@ def create_menu(request):
 
 
 @login_required(login_url='login')
-# @allowed_users(role=['admin', 'editor'])
+@allowed_users(role=['admin', 'editor'])
 def edit_menu(request, pk):
     menu = get_object_or_404(Menu, pk=pk)
     if request.method == "POST":
@@ -524,7 +525,7 @@ def edit_scientific_degree(request, pk):
             }
             return JsonResponse(data)
     else:
-        form = CreateRoleForm(instance=degree)
+        form = CreateScientificDegreeForm(instance=degree)
         context = {
             'form': form,
             'degree': degree,
@@ -1167,11 +1168,11 @@ def editor_check_article(request, pk):
         if objs.count() != 1:
             return render(request, 'user_app/not_access.html')
 
-        notifification = get_object_or_404(Notification, pk=pk)
-        if notifification.notification_status.id == 1:
-            notifification.notification_status = NotificationStatus.objects.get(id=2)
-            notifification.save()
-        article = Article.objects.get(pk=notifification.article.id)
+        notification = get_object_or_404(Notification, pk=pk)
+        if notification.notification_status.id == 1:
+            notification.notification_status = NotificationStatus.objects.get(id=2)
+            notification.save()
+        article = Article.objects.get(pk=notification.article.id)
 
         file = ArticleFile.objects.filter(article=article).filter(file_status=1).last()
         article_reviews = ReviewerArticle.objects.filter(article=article).filter(editor=objs.first())
@@ -1264,13 +1265,13 @@ def reviewer_check_article(request, pk):
         user = get_object_or_404(User, pk=request.user.id)
         objs = Reviewer.objects.filter(user=user).filter(is_reviewer=True)
 
-        notifification = get_object_or_404(Notification, pk=pk)
-        if notifification.notification_status.id == 1:
-            notifification.notification_status = NotificationStatus.objects.get(id=2)
-            notifification.save()
+        notification = get_object_or_404(Notification, pk=pk)
+        if notification.notification_status.id == 1:
+            notification.notification_status = NotificationStatus.objects.get(id=2)
+            notification.save()
 
         reviewer = get_object_or_404(Reviewer, user=user)
-        article = Article.objects.get(pk=notifification.article.id)
+        article = Article.objects.get(pk=notification.article.id)
 
         article_reviews = ReviewerArticle.objects.filter(article=article).filter(reviewer=objs.first())
 
@@ -1281,7 +1282,7 @@ def reviewer_check_article(request, pk):
                 article_review.save()
             context = {
                 "article": article,
-                "notifification": notifification,
+                "notification": notification,
                 "editor": article_review.editor,
                 "article_review": article_review,
                 "form": ReviewArticleForm(instance=article_review)
@@ -1350,10 +1351,6 @@ def reviewer_resubmit(request):
         review_id = request.POST.get('review_article_id')
         notif_id = request.POST.get('notif_id')
         comment = request.POST.get('comment')
-
-        with open('error.txt', 'w') as f:
-            f.write(f"{review_id}")
-            f.write(f"{notif_id}")
 
         review = ReviewerArticle.objects.get(pk=int(review_id))
         review.comment = comment
@@ -1631,7 +1628,7 @@ def approve_publish(request):
             }
 
         else:
-            print(-1)
+            pass  # No action needed for else case
         return JsonResponse(data=data)
     else:
         return HttpResponse("Not Fount Page!")
@@ -1911,7 +1908,7 @@ def get_data_ps(request):
 
         try:
             url = f"https://imei_api.uzbmb.uz/compress?imie={jshshr}&ps={ps.upper()}"
-            response = requests.get(url, verify=False, timeout=3)
+            response = requests.get(url, verify=True, timeout=3)
 
             data = json.loads(response.text)
         except Exception as e:

@@ -19,7 +19,7 @@
                     {% for items, job_number, status_code, message in data %}
                         <tr><th colspan="4">{% trans "Ekspert" %}{{ forloop.counter }} <i class="fa fa-arrow-down" style="color: #00B0E8"></i></th></tr>
                         {% if message %}
-                            <tr><td colspan="4" class="text text-justify">{{ message|safe }}</td></tr>
+                            <tr><td colspan="4" class="text text-justify">{{ message }}</td></tr>
                         {% endif %}
                         {% if items.count > 0 %}
                             {% for item in items %}
@@ -196,12 +196,19 @@
                     let allowedExtension1 = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
                     let allowedExtension2 = "application/msword";
                     if (fileType === allowedExtension1 || fileType === allowedExtension2) {
-                        let temp1 = `<div class="uploaded uploaded--one"><i class="far fa-file-word"></i><div class="file"><div class="file__name"><p>` + file.name + `</p><i class="fas fa-check"></i></div></div></div></div>`;
-                        $('#file-list-display').append(temp1);
+                        let temp1 = document.createElement('div');
+                        temp1.className = 'uploaded uploaded--one';
+                        temp1.innerHTML = '<i class="far fa-file-word"></i><div class="file"><div class="file__name"><p></p><i class="fas fa-check"></i></div></div>';
+                        temp1.querySelector('p').textContent = file.name;
+                        document.getElementById('file-list-display').appendChild(temp1);
                     } else {
                         $('.warningText').css('display', 'block');
-                        let temp2 = `<div class="uploaded uploaded--one" style="background-color: #EED1CE;"><i class="far fa-file-word"></i><div class="file"><div class="file__name"><p>` + file.name + `</p><i class="fas fa-times"></i></div></div></div></div>`;
-                        $('#file-list-display').append(temp2);
+                        let temp2 = document.createElement('div');
+                        temp2.className = 'uploaded uploaded--one';
+                        temp2.style.backgroundColor = '#EED1CE';
+                        temp2.innerHTML = '<i class="far fa-file-word"></i><div class="file"><div class="file__name"><p></p><i class="fas fa-times"></i></div></div>';
+                        temp2.querySelector('p').textContent = file.name;
+                        document.getElementById('file-list-display').appendChild(temp2);
                     }
 
                 });
@@ -248,7 +255,10 @@
                                 }
                             }
                         });
-                        window.location.href = response.url;
+                        // Validate URL before redirect to prevent open redirect
+                        if (response.url && response.url.startsWith('/')) {
+                            window.location.href = response.url;
+                        }
                     } else {
                         swal({
                             title: 'Diqqat!',

@@ -43,7 +43,7 @@
                         <label class="col-md-3 col-sm-3 col-form-label">{% trans "Mavzu" %} <span
                                 class="text-danger">*</span></label>
                         <div class="col-md-9 col-sm-9">
-                            {{ form.title|safe }}
+                            {{ form.title }}
                         </div>
                     </div>
                 </div>
@@ -74,7 +74,10 @@
                 success: function (response) {
                     if (response.result) {
                         $('#create_article_modal').modal('hide');
-                        window.location.href = response.url.toString();
+                        // Validate URL before redirect to prevent open redirect
+                        if (response.url && response.url.toString().startsWith('/')) {
+                            window.location.href = response.url.toString();
+                        }
                     } else {
                         swal({
                             title: response.message,

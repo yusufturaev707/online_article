@@ -89,22 +89,46 @@
                     if (lang === 'uz') {
                         link = item.url;
                     }
-                    let temp = `<li id="navbar_menus_${item.id}">` +
-                        `<a href="${link}" id="navbar_menu_text_${item.id}" style="font-family: Cambria, Helvetica, Arial, Sans-Serif,serif; font-size: 16px;">${item.name}</a></li>`;
-                    $('.navbar_menus').append(temp);
+                    // Safe DOM manipulation - escape user data
+                    let li = document.createElement('li');
+                    li.id = 'navbar_menus_' + item.id;
+                    let a = document.createElement('a');
+                    a.href = link;
+                    a.id = 'navbar_menu_text_' + item.id;
+                    a.style.cssText = 'font-family: Cambria, Helvetica, Arial, Sans-Serif,serif; font-size: 16px;';
+                    a.textContent = item.name;
+                    li.appendChild(a);
+                    $('.navbar_menus').append(li);
 
 
                     if (base_url === item.url_name.toString()) {
                         $('#navbar_menu_text_' + item.id).css({"font-weight": "bold", "color": "#3e6db5" });
                     }
                 }
-                let temp2 = `<li class="dropdown navbar-user"><a href="#" class="dropdown-toggle" data-toggle="dropdown" style="font-family: Tahoma, Helvetica, Arial, Sans-Serif,serif; font-size: 14px;"><b><span class="d-none d-md-inline">${response.full_name}</span></b></a>`+
-                        `<div class="dropdown-menu dropdown-menu-right">`+
-                            `<a href="{% url 'dashboard' %}" class="dropdown-item" style="font-family: Tahoma, Helvetica, Arial, Sans-Serif,serif; font-size: 14px;"><i class="icon-pencil  p-r-10"></i><span>{% trans "Shaxsiy kabinet" %}</span></a>`+
-                            `<a href="{% url 'logout' %}" class="dropdown-item" style="font-family: Tahoma, Helvetica, Arial, Sans-Serif,serif; font-size: 14px;"><i class="icon-logout  p-r-10"></i><span>{% trans "Chiqish" %}</span></a></div></li>`;
-                            if (response.is_authenticated){
-                                $('.navbar_menus').append(temp2);
-                            }
+                // Safe DOM manipulation for user dropdown
+                if (response.is_authenticated){
+                    let li2 = document.createElement('li');
+                    li2.className = 'dropdown navbar-user';
+                    let dropdownLink = document.createElement('a');
+                    dropdownLink.href = '#';
+                    dropdownLink.className = 'dropdown-toggle';
+                    dropdownLink.setAttribute('data-toggle', 'dropdown');
+                    dropdownLink.style.cssText = 'font-family: Tahoma, Helvetica, Arial, Sans-Serif,serif; font-size: 14px;';
+                    let b = document.createElement('b');
+                    let span = document.createElement('span');
+                    span.className = 'd-none d-md-inline';
+                    span.textContent = response.full_name;
+                    b.appendChild(span);
+                    dropdownLink.appendChild(b);
+                    li2.appendChild(dropdownLink);
+
+                    let dropdownMenu = document.createElement('div');
+                    dropdownMenu.className = 'dropdown-menu dropdown-menu-right';
+                    dropdownMenu.innerHTML = `<a href="{% url 'dashboard' %}" class="dropdown-item" style="font-family: Tahoma, Helvetica, Arial, Sans-Serif,serif; font-size: 14px;"><i class="icon-pencil  p-r-10"></i><span>{% trans "Shaxsiy kabinet" %}</span></a>` +
+                        `<a href="{% url 'logout' %}" class="dropdown-item" style="font-family: Tahoma, Helvetica, Arial, Sans-Serif,serif; font-size: 14px;"><i class="icon-logout  p-r-10"></i><span>{% trans "Chiqish" %}</span></a>`;
+                    li2.appendChild(dropdownMenu);
+                    $('.navbar_menus').append(li2);
+                }
             },
             error: function (error) {
                 console.log(error);

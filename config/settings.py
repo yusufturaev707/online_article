@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'captcha',
     'admin1',
+    'django_bleach',
 ]
 
 CKEDITOR_UPLOAD_PATH = "ax_clone_site/uploads/"

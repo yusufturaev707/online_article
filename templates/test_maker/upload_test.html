@@ -121,7 +121,10 @@
             success: function (response) {
                 if (response.result) {
                     $('.createNewtestForm').trigger("reset");
-                    window.location.href = response.url;
+                    // Validate URL before redirect to prevent open redirect
+                    if (response.url && response.url.startsWith('/')) {
+                        window.location.href = response.url;
+                    }
                 } else {
                     swal({
                         title: 'Diqqat!',
