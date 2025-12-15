@@ -45,21 +45,25 @@
                         <ul class="dropdown-menu">
                             {% for language in languages %}
                                 <li id="lang_{{ language.code }}">
-
-                                    <a href="{% url 'set-language' language.code %}" class="btn btn-white btn-block text-left">
-                                        {% if language.code != 'kk' %}
-                                            <span class="flag-icon flag-icon-{% if language.code == 'en' %}gb{% else %}{{ language.code }}{% endif %}"></span>
-                                        {% else %}
-                                            <span><img src="{% static 'img/qq.png' %}" alt="" width="22"/></span>
-                                        {% endif %}
-                                        {% if language.code == 'kk' %}
-                                            Qaraqalpaq tili
-                                        {% elif language.code == 'uz' %}
-                                            O‘zbek tili
-                                        {% else %}
-                                            {{ language.name_local }}
-                                        {% endif %}
-                                    </a>
+                                    <form action="{% url 'set_language' %}" method="post" style="margin:0;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="language" value="{{ language.code }}">
+                                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                                        <button type="submit" class="btn btn-white btn-block text-left">
+                                            {% if language.code != 'kk' %}
+                                                <span class="flag-icon flag-icon-{% if language.code == 'en' %}gb{% else %}{{ language.code }}{% endif %}"></span>
+                                            {% else %}
+                                                <span><img src="{% static 'img/qq.png' %}" alt="" width="22"/></span>
+                                            {% endif %}
+                                            {% if language.code == 'kk' %}
+                                                Qaraqalpaq tili
+                                            {% elif language.code == 'uz' %}
+                                                O'zbek tili
+                                            {% else %}
+                                                {{ language.name_local }}
+                                            {% endif %}
+                                        </button>
+                                    </form>
                                 </li>
                             {% endfor %}
                         </ul>

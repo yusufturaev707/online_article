@@ -5,13 +5,10 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include, re_path
 
-from article_app.views import set_language
 from django.conf.urls import handler404
 
 urlpatterns = [
     path('ax_clone_site/i18n/', include('django.conf.urls.i18n')),
-    # set_language - i18n_patterns dan tashqarida bo'lishi kerak
-    path("ax_clone_site/set_language/<str:language>/", set_language, name="set-language"),
 ]
 
 urlpatterns += [

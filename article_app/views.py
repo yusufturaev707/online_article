@@ -36,37 +36,16 @@ def is_ajax(request):
 
 
 def set_language(request, language):
-    # Tilni tekshirish - faqat ruxsat berilgan tillar
+    # Tilni tekshirish
     valid_languages = [lang[0] for lang in settings.LANGUAGES]
     if language not in valid_languages:
         language = settings.LANGUAGE_CODE
 
-    # Oldingi sahifa URL ni olish
-    referer = request.META.get("HTTP_REFERER", "")
+    # Oldingi sahifaga qaytish
+    referer = request.META.get("HTTP_REFERER", "/")
 
-    if referer:
-        parsed_url = urlparse(referer)
-        path = parsed_url.path
-
-        # Til prefiksini olib tashlash (/uz/..., /en/..., /ru/...)
-        for lang, _ in settings.LANGUAGES:
-            lang_prefix = f"/{lang}/"
-            if path.startswith(lang_prefix):
-                path = path[len(lang_prefix) - 1:]  # / ni qoldirish
-                break
-
-        # Yangi til bilan URL yaratish
-        if language == settings.LANGUAGE_CODE:
-            # Default til uchun prefiks qo'shmaslik
-            next_url = path
-        else:
-            next_url = f"/{language}{path}"
-    else:
-        next_url = "/"
-
-    response = HttpResponseRedirect(next_url)
+    response = HttpResponseRedirect(referer)
     response.set_cookie(settings.LANGUAGE_COOKIE_NAME, language)
-    translation.activate(language)
 
     return response
 
