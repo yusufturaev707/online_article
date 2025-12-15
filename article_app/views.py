@@ -36,23 +36,38 @@ def is_ajax(request):
 
 
 def set_language(request, language):
-    global view
-    for lang, _ in settings.LANGUAGES:
-        translation.activate(lang)
-        try:
-            view = resolve(urlparse(request.META.get("HTTP_REFERER")).path)
-        except Resolver404:
-            view = None
-        if view:
-            break
-    if view:
-        translation.activate(language)
-        next_url = reverse(view.url_name, args=view.args, kwargs=view.kwargs)
-        print(next_url)
-        response = HttpResponseRedirect(next_url)
-        response.set_cookie(settings.LANGUAGE_COOKIE_NAME, language)
+    # Tilni tekshirish - faqat ruxsat berilgan tillar
+    valid_languages = [lang[0] for lang in settings.LANGUAGES]
+    if language not in valid_languages:
+        language = settings.LANGUAGE_CODE
+
+    # Oldingi sahifa URL ni olish
+    referer = request.META.get("HTTP_REFERER", "")
+
+    if referer:
+        parsed_url = urlparse(referer)
+        path = parsed_url.path
+
+        # Til prefiksini olib tashlash (/uz/..., /en/..., /ru/...)
+        for lang, _ in settings.LANGUAGES:
+            lang_prefix = f"/{lang}/"
+            if path.startswith(lang_prefix):
+                path = path[len(lang_prefix) - 1:]  # / ni qoldirish
+                break
+
+        # Yangi til bilan URL yaratish
+        if language == settings.LANGUAGE_CODE:
+            # Default til uchun prefiks qo'shmaslik
+            next_url = path
+        else:
+            next_url = f"/{language}{path}"
     else:
-        response = HttpResponseRedirect("/")
+        next_url = "/"
+
+    response = HttpResponseRedirect(next_url)
+    response.set_cookie(settings.LANGUAGE_COOKIE_NAME, language)
+    translation.activate(language)
+
     return response
 
 

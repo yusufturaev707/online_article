@@ -10,6 +10,8 @@ from django.conf.urls import handler404
 
 urlpatterns = [
     path('ax_clone_site/i18n/', include('django.conf.urls.i18n')),
+    # set_language - i18n_patterns dan tashqarida bo'lishi kerak
+    path("ax_clone_site/set_language/<str:language>/", set_language, name="set-language"),
 ]
 
 urlpatterns += [
@@ -40,7 +42,6 @@ urlpatterns += i18n_patterns(
 
     # extra
     path('ax_clone_site/ckeditor/', include('ckeditor_uploader.urls')),
-    path("ax_clone_site/set_language/<str:language>", set_language, name="set-language"),
     prefix_default_language=False,
 )
 if settings.DEBUG:
