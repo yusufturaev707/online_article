@@ -19,6 +19,9 @@ import io
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
 
+from django.db.models import Count
+from django.contrib import messages
+
 cwd = os.getcwd()
 
 
@@ -473,7 +476,19 @@ def edit_journal(request, pk):
             data = {"message": _("Jurnal ma'lumotlarida o'zgarish yo'q!"), "result": False}
             return JsonResponse(data)
         if form.is_valid():
-            form.save()
+            journal_ob = form.save(commit=False)
+            if journal.is_split and journal.file_pdf and journal.file_mundarija and journal.file_head_pdf and journal.status:
+                journal_ob.is_publish = True
+                journal_ob.save()
+
+                data = {
+                    "result": True,
+                    "message": _("Muvaffaqiyatli saytga publish qilindi!")
+                }
+                return JsonResponse(data)
+            else:
+                journal_ob.is_publish = False
+                journal_ob.save()
 
             file_pdf_head = journal.file_head_pdf.path
 
@@ -624,21 +639,33 @@ def delete_journal(request, pk):
 
 
 def journal_detail(request, pk):
-    journal = get_object_or_404(Journal, pk=pk)
-    list_articles = JournalArticle.objects.filter(journal=journal).order_by('order_page')
+    try:
+        journal = get_object_or_404(Journal, pk=pk, is_publish=True)
 
-    for item in list_articles:
-        n = ExtraAuthor.objects.filter(article=item.article).count()
-        item.count_author = n
-        item.save()
+        # select_related va prefetch_related orqali N+1 query muammosini hal qilish
+        list_articles = (
+            JournalArticle.objects
+            .filter(journal=journal)
+            .select_related('article')
+            .prefetch_related('article__extraauthor_set')
+            .annotate(count_author=Count('article__extraauthor'))
+            .order_by('order_page')
+        )
 
-    lang = get_language()
-    context = {
-        'journal': journal,
-        'list_articles': list_articles,
-        'lang': lang,
-    }
-    return render(request, "journal/journal_detail.html", context=context)
+        context = {
+            'journal': journal,
+            'list_articles': list_articles,
+            'lang': get_language(),
+        }
+        return render(request, "journal/journal_detail.html", context=context)
+
+    except Journal.DoesNotExist:
+        messages.error(request, "Jurnal topilmadi.")
+        return redirect('journals_list')  # yoki boshqa sahifaga
+
+    except Exception as e:
+        messages.error(request, "Xatolik yuz berdi. Iltimos qaytadan urinib ko'ring.")
+        return redirect('journals_list')
 
 
 def journals_list(request):
@@ -650,9 +677,17 @@ def journals_list(request):
 
 
 def journal_year_list(request, year):
-    ob_year = get_object_or_404(JournalYear, year=int(year))
-    journals = Journal.objects.filter(is_publish=True, status=True, year_id=ob_year.id).order_by('created_at')
-    return render(request, 'journal/journals_year.html', context={'journals': journals, 'year': ob_year.year})
+    try:
+        ob_year = get_object_or_404(JournalYear, year=int(year))
+        journals = Journal.objects.filter(is_publish=True, status=True, year_id=ob_year.id).order_by('year__year',
+                                                                                                     'number__number')
+        return render(request, 'journal/journals_year.html', context={'journals': journals, 'year': ob_year.year})
+    except JournalYear.DoesNotExist:
+        messages.error(request, "yil topilmadi.")
+        return redirect('journal_list')
+    except Exception as e:
+        messages.error(request, f"Xatolik yuz berdi. {e}.")
+        return redirect('journals_list')
 
 
 def journal_article_view(request, pk):
