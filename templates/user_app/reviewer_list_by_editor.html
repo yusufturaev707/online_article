@@ -40,7 +40,8 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <button type="button" onclick="handleViewReviewer({{ submission.reviewer.id }}, {% url 'choosen_reviewer_role_list' %})"
+                                    <button type="button"
+                                            onclick="handleViewReviewer({{ submission.reviewer.id }}, '{% url 'choosen_reviewer_role_list' %}')"
                                             class="btn btn-md btn-outline-primary forshadow">
                                         <i class="fas fa-fw m-r-5 fa-pen"></i>
                                     </button>
@@ -57,26 +58,34 @@
     <div id="reviewer_submission_div"></div>
 
     <script>
-        (function() {
-            'use strict';
+        function handleViewReviewer(id, baseUrl) {
+            // Agar baseUrl oxirida slash bo'lmasa, qo'shamiz
+            let url = baseUrl.endsWith('/') ? baseUrl + id + '/' : baseUrl + '/' + id + '/';
 
-            window.handleViewReviewer = function(reviewerId, url) {
-                $.ajax({
-                    type: "GET",
-                    url: url + reviewerId + "/",
-                    success: function(response) {
-                        $('#reviewer_submission_div').html(response);
-                        $('#reviewer_role_list_detail_modal').modal('show');
-                    },
-                    error: function(xhr, status, error) {
-                        console.error("Xatolik yuz berdi:", {
-                            status: status,
-                            error: error,
-                            response: xhr.responseText
-                        });
-                    }
-                });
-            };
-        })();
+            // Tugmani yuklanish holatiga o'tkazish (UX uchun)
+            const $btn = $(event.currentTarget);
+            const originalContent = $btn.html();
+            $btn.html('<i class="fas fa-spinner fa-spin"></i>').prop('disabled', true);
+
+            $.ajax({
+                type: "GET",
+                url: url,
+                success: function (response) {
+                    $('#reviewer_submission_div').html(response);
+                    $('#reviewer_role_list_detail_modal').modal('show');
+                },
+                error: function (xhr) {
+                    console.error("Xatolik:", xhr);
+                    swal({
+                        title: "Xatolik!",
+                        text: "Ma'lumotni yuklab bo'lmadi.",
+                        icon: "error",
+                    });
+                },
+                complete: function () {
+                    $btn.html(originalContent).prop('disabled', false);
+                }
+            });
+        }
     </script>
 {% endblock %}
