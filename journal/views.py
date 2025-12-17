@@ -660,7 +660,12 @@ def journal_detail(request, pk):
         return render(request, "journal/journal_detail.html", context=context)
     except Exception as e:
         messages.error(request, f"Xatolik yuz berdi: {e}.")
-        return redirect('journals_list')
+        context = {
+            'journal': {},
+            'list_articles': [],
+            'lang': get_language(),
+        }
+        return render(request, "journal/journal_detail.html", context=context)
 
 
 def journals_list(request):
