@@ -10,6 +10,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 class JournalYear(models.Model):
     year = models.PositiveBigIntegerField(
         default=2000,
+        unique=True,
         validators=[
             MinValueValidator(1995, message="Son 1995 dan kichik bo'lishi mumkin emas."),
             MaxValueValidator(2100, message="Son 2100 dan katta bo'lishi mumkin emas.")
@@ -28,6 +29,7 @@ class JournalYear(models.Model):
 class JournalNumber(models.Model):
     number = models.PositiveBigIntegerField(
         default=1,
+        unique=True,
         validators=[
             MinValueValidator(1, message="Son 1 dan kichik bo'lishi mumkin emas."),
             MaxValueValidator(10, message="Son 10 dan katta bo'lishi mumkin emas.")
@@ -72,6 +74,12 @@ class Journal(models.Model):
 
     class Meta:
         verbose_name = _("Journal")
+        constraints = [
+            models.UniqueConstraint(
+                fields=['year', 'number'],
+                name='unique_journal_year_number'
+            )
+        ]
 
 
 class JournalArticle(models.Model):
