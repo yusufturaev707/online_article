@@ -1,105 +1,82 @@
 {% extends 'user_app/base.html' %}
-{% load i18n static %}
-
+{% load i18n %}
+{% load static %}
 {% block title %}{% trans "Taqrizchi roliga davogar talabgorlar ro'yxati" %}{% endblock %}
-
 {% block content %}
-<style>
-    .submission-panel { background-color: #ffffff; border-radius: 5px; padding: 15px; }
-    .badge-status-1 { background-color: #ffc107; color: #000; } /* Warning */
-    .badge-status-2 { background-color: #28a745; } /* Success */
-    .badge-status-3 { background-color: #dc3545; } /* Danger */
-    .table-v-align td { vertical-align: middle !important; }
-</style>
+    <div id="content" class="content">
 
-<div id="content" class="content">
-    <h2 class="page-header viewArticleFont">
-        {% trans "Taqrizchi roliga davogar talabgorlar ro'yxati" %}
-    </h2>
+        <h2 class="page-header viewArticleFont">
+            {% trans "Taqrizchi roliga davogar talabgorlar ro'yxati" %}
+        </h2>
 
-    <div class="panel-body forshadow submission-panel">
-        <div class="table-responsive">
-            <table class="table table-hover table-v-align">
-                <thead>
-                    <tr>
-                        <th width="50">#</th>
-                        <th>{% trans "F.I.O" %}</th>
-                        <th>{% trans "E-mail" %}</th>
-                        <th>{% trans "Ilmiy daraja" %}</th>
-                        <th>{% trans "Holat" %}</th>
-                        <th width="100">{% trans "Amallar" %}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for submission in submissions %}
-                    <tr>
-                        <td>{{ forloop.counter }}</td>
-                        <td><strong>{{ submission.reviewer.user.full_name }}</strong></td>
-                        <td>{{ submission.reviewer.user.email }}</td>
-                        <td>{{ submission.reviewer.scientific_degree|default:"-" }}</td>
-                        <td>
-                            {# Dinamik badge klassi #}
-                            <span class="badge badge-status-{{ submission.status.id }}">
-                                {{ submission.status.name }}
-                            </span>
-                        </td>
-                        <td>
-                            <button type="button"
-                                    data-id="{{ submission.reviewer.id }}"
-                                    class="btn btn-sm btn-outline-primary forshadow js-view-reviewer"
-                                    title="{% trans 'Korish' %}"><i class=" fas fa-edit"></i>
-                            </button>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="6" class="text-center text-muted">{% trans "Ma'lumot topilmadi" %}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        <div class="panel-body forshadow" style="background-color: #ffffff; border-radius: 5px; padding: 10px;">
+            <div class="container" style="padding: 15px;">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                        <tr>
+                            <th><strong>{% trans "Tr" %}</strong></th>
+                            <th><strong>{% trans "F.I.O" %}</strong></th>
+                            <th><strong>{% trans "E-mail" %}</strong></th>
+                            <th><strong>{% trans "Ilmiy daraja" %}</strong></th>
+                            <th><strong>{% trans "Holat" %}</strong></th>
+                            <th><strong>{% trans "Amallar" %}</strong></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for submission in submissions %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ submission.reviewer.user.full_name }}</td>
+                                <td>{{ submission.reviewer.user.email }}</td>
+                                <td>{{ submission.reviewer.scientific_degree }}</td>
+                                <td>
+                                    {% if submission.status.id == 1 %}
+                                        <span class='badge badge-warning'>{{ submission.status.name }}</span>
+                                    {% elif submission.status.id == 2 %}
+                                        <span class='badge badge-success'>{{ submission.status.name }}</span>
+                                    {% elif submission.status.id == 3 %}
+                                        <span class='badge badge-danger'>{{ submission.status.name }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <button type="button" onclick="handleViewReviewer({{ submission.reviewer.id }})"
+                                            class="btn btn-md btn-outline-primary forshadow">
+                                        <i class="fas fa-fw m-r-5 fa-pen"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
-</div>
 
-<div id="reviewer_submission_div"></div>
-<script>
-    // Sahifa to'liq yuklangandan keyin ishlashini ta'minlaymiz
-    $(document).ready(function() {
+    <div id="reviewer_submission_div"></div>
 
-        // Delegatsiya orqali tugma bosilishini ushlaymiz
-        $(document).on('click', '.js-view-reviewer', function() {
-            const $btn = $(this);
-            const reviewerId = $btn.data('id'); // data-id dan ID ni olamiz
-            const originalHtml = $btn.html();
+    <script>
+        (function() {
+            'use strict';
 
-            // Yuklanish holati
-            $btn.html('<i class="fas fa-spinner fa-spin"></i>').prop('disabled', true);
-
-            $.ajax({
-                type: "GET",
-                url: "/profile/choosen_reviewer_role_list/" + reviewerId + "/",
-                success: function (response) {
-                    $('#reviewer_submission_div').html(response);
-                    $('#reviewer_role_list_detail_modal').modal('show');
-                },
-                error: function (xhr) {
-                    console.error("Xatolik:", xhr);
-                    if (typeof swal === 'function') {
-                        swal({
-                            title: "Xatolik!",
-                            text: "Ma’lumotni yuklashda xato yuz berdi.",
-                            icon: "error",
+            window.handleViewReviewer = function(reviewerId) {
+                $.ajax({
+                    type: "GET",
+                    url: "/profile/choosen_reviewer_role_list/" + reviewerId + "/",
+                    success: function(response) {
+                        $('#reviewer_submission_div').html(response);
+                        $('#reviewer_role_list_detail_modal').modal('show');
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Xatolik yuz berdi:", {
+                            status: status,
+                            error: error,
+                            response: xhr.responseText
                         });
-                    } else {
-                        alert("Xatolik yuz berdi!");
                     }
-                },
-                complete: function () {
-                    $btn.html(originalHtml).prop('disabled', false);
-                }
-            });
-        });
-    });
-</script>
+                });
+            };
+        })();
+    </script>
 {% endblock %}
