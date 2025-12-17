@@ -56,7 +56,8 @@
     </div>
 
     <div id="reviewer_submission_div"></div>
-
+{% endblock %}
+{% block extra_js %}
     <script>
         function handleViewReviewer(id, baseUrl) {
             // Agar baseUrl oxirida slash bo'lmasa, qo'shamiz
@@ -88,4 +89,4 @@
             });
         }
     </script>
-{% endblock %}
+{% endblock extra_js %}
