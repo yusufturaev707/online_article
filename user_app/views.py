@@ -924,7 +924,6 @@ def change_password(request):
 
 @login_required(login_url='login')
 @orientation_user
-# @allowed_users(['admin', 'editor', 'reviewer', 'author'])
 def user_dashboard(request):
     user = get_object_or_404(User, pk=request.user.id)
     myqueues = Article.objects.filter(author=user).filter(
@@ -932,21 +931,16 @@ def user_dashboard(request):
         Q(article_status_id=7) | Q(article_status_id=8) | Q(article_status_id=10)).order_by('-updated_at')
 
     myarchives = Article.objects.filter(author=user).filter(
-        Q(article_status_id=2) | Q(article_status_id=3) | Q(article_status_id=9)).order_by(
-        '-updated_at')
+        Q(article_status_id=2) | Q(article_status_id=3) | Q(article_status_id=9)).order_by('-updated_at')
+
     finished_articles = Article.objects.filter(author=user).filter(
         Q(article_status_id=2) | Q(article_status_id=3)).order_by('-updated_at')
 
-    finished_article = None
-    if finished_articles.count() > 0:
-        finished_article = finished_articles.last()
+    finished_article = finished_articles.last() if finished_articles.exists() else None
 
-    exmpl_files = TemplateFile.objects.filter(code_name=0).all()
-    exmpl_file = None
-    if exmpl_files.count() == 0:
-        exmpl_file = ''
-    else:
-        exmpl_file = exmpl_files.last()
+    # Only get TemplateFile objects that actually have a file
+    exmpl_files = TemplateFile.objects.filter(code_name=0).exclude(template_file='').all()
+    exmpl_file = exmpl_files.last() if exmpl_files.exists() else None
 
     context = {
         'user': user,

@@ -32,7 +32,7 @@
                     <div class="tab-pane fade active show" id="myqueue">
                         <div class="row">
                             <div class="col-md-6">
-                                {% if exmpl_file %}
+                                {% if exmpl_file and exmpl_file.template_file %}
                                     <a href="{{ exmpl_file.template_file.url }}" download role="button"
                                        style="float: right"
                                        class="btn btn-outline-warning btn-sm template_word"><i
