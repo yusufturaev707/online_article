@@ -40,7 +40,7 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <button type="button" onclick="handleViewReviewer({{ submission.reviewer.id }})"
+                                    <button type="button" onclick="handleViewReviewer({{ submission.reviewer.id }}, {% url 'choosen_reviewer_role_list' %})"
                                             class="btn btn-md btn-outline-primary forshadow">
                                         <i class="fas fa-fw m-r-5 fa-pen"></i>
                                     </button>
@@ -60,10 +60,10 @@
         (function() {
             'use strict';
 
-            window.handleViewReviewer = function(reviewerId) {
+            window.handleViewReviewer = function(reviewerId, url) {
                 $.ajax({
                     type: "GET",
-                    url: "/profile/choosen_reviewer_role_list/" + reviewerId + "/",
+                    url: url + reviewerId + "/",
                     success: function(response) {
                         $('#reviewer_submission_div').html(response);
                         $('#reviewer_role_list_detail_modal').modal('show');

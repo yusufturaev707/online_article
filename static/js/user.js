@@ -250,39 +250,6 @@ $('body').on('click', '.remove_article_btn', function (e) {
     });
 });
 
-const formValidate = array => {
-
-    let is_validRForm = true;
-
-    $('.text-danger').hide();
-
-    for (let index = 0; index < array.length; index++) {
-        let key = array[index].key;
-        let value = array[index].value;
-        let message = array[index].message;
-
-
-        if (key == 'email') {
-            if (value == "") {
-                $('.' + key).after('<span class="text-danger"> Iltimos e-mailizni kiriting </span>');
-                is_validRForm = false;
-            } else if (!validateEmail(value)) {
-                $('.' + key).after('<span class="text-danger"> Iltimos to\'gri e-mail kiriting</span>');
-                is_validRForm = false;
-            }
-        } else {
-
-            if (value == '') {
-                $('.' + key).after('<span class="text-danger text-small">' + message + 'ni kiriting!</span>');
-                is_validRForm = false;
-            }
-        }
-
-    }
-
-    return is_validRForm
-};
-
 $('body').on('submit', '.update_article_form', function (e) {
     e.preventDefault();
     const $myForm = $('.update_article_form')
@@ -298,11 +265,7 @@ $('body').on('submit', '.update_article_form', function (e) {
         {key: 'title_en', value: title_en, message: "Mavzu"},
     ];
 
-    let is_valid_editArticleForm = formValidate(data);
-
-    if (is_valid_editArticleForm) {
-
-        $.ajax({
+    $.ajax({
             type: "POST",
             url: $thisURL,
             data: $formData,
@@ -318,13 +281,6 @@ $('body').on('submit', '.update_article_form', function (e) {
                 console.log(error);
             }
         });
-
-    } else {
-        swal({
-            title: "Iltimos formani toliq to'ldiring!",
-            timer: 3000
-        });
-    }
 });
 
 $('body').on('click', '.view_user_btn', function (e) {
