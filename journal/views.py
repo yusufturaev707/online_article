@@ -425,7 +425,7 @@ def create_journal(request):
         else:
             data = {
                 "result": False,
-                "message": _("Forma to'liq emas!"),
+                "message": _(f"{form.errors}"),
             }
             return JsonResponse(data)
     context = {
@@ -575,7 +575,7 @@ def edit_journal(request, pk):
         else:
             data = {
                 "result": False,
-                "message": _("Fayl yuklashda yoki boshqa xatolik yuz berdi!")
+                "message": _(f"{form.errors}!")
             }
             return JsonResponse(data)
 
