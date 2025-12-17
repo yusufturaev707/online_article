@@ -3,7 +3,7 @@ function validateEmail(email) {
     return regex.test(email);
 }
 
-const formValidate = array => {
+const formValidateR = array => {
 
     let is_validRForm = true;
 
@@ -65,7 +65,7 @@ $('body').on('click', '.change_pass_btn', function (e) {
         {key: 'id_new_password2', value: id_new_password2, message: "Yangi parol"},
     ]
 
-    let is_valid_registerForm = formValidate(data);
+    let is_valid_registerForm = formValidateR(data);
 
     if (is_valid_registerForm) {
         let url = $('#change_password_form').data('url');
@@ -188,7 +188,7 @@ $('body').on('submit', '.editProfileForm', function (e) {
     ];
 
 
-    let is_valid_form = formValidate(dataEdit);
+    let is_valid_form = formValidateR(dataEdit);
 
     if (is_valid_form) {
 

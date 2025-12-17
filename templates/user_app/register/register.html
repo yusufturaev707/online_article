@@ -103,7 +103,7 @@
             }
         });
 
-        const formValidate = array => {
+        const formValidateRegiter = array => {
             let is_validRForm = true;
 
             // Avvalgi xatoliklarni tozalaymiz
@@ -161,7 +161,7 @@ $('.registerForm').on('submit', function (e) {
     $('#registerFormError').empty();
 
     // Tekshiruv funksiyasi
-    const isValid = formValidate(formData);
+    const isValid = formValidateRegiter(formData);
 
     // Agar forma to'g'ri to'ldirilgan bo'lsa — AJAX yuboriladi
     if (isValid) {
