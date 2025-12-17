@@ -643,14 +643,21 @@ def journal_detail(request, pk):
         journal = get_object_or_404(Journal, pk=pk, is_publish=True)
 
         # select_related va prefetch_related orqali N+1 query muammosini hal qilish
-        list_articles = (
-            JournalArticle.objects
-            .filter(journal=journal)
-            .select_related('article')
-            .prefetch_related('article__extraauthor_set')
-            .annotate(count_author=Count('article__extraauthor'))
-            .order_by('order_page')
-        )
+        # list_articles = (
+        #     JournalArticle.objects
+        #     .filter(journal=journal)
+        #     .select_related('article')
+        #     .prefetch_related('article__extraauthor_set')
+        #     .annotate(count_author=Count('article__extraauthor'))
+        #     .order_by('order_page')
+        # )
+
+        list_articles = JournalArticle.objects.filter(journal=journal).order_by('order_page')
+
+        for item in list_articles:
+            n = ExtraAuthor.objects.filter(article=item.article).count()
+            item.count_author = n
+            item.save()
 
         context = {
             'journal': journal,
