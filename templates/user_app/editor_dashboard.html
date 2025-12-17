@@ -103,7 +103,8 @@
             </div>
         </div>
     </div>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+{% endblock %}
+{% block extra_js %}
     <script type="text/javascript">
         $(document).ready(function () {
             let url = '{% url 'editor_notifications' %}'.toString();
@@ -302,4 +303,4 @@
             });
         });
     </script>
-{% endblock %}
+{% endblock extra_js %}

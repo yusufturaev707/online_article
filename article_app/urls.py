@@ -23,6 +23,7 @@ urlpatterns = [
     path('author/edit/<int:pk>/', edit_author, name='edit_author'),
     path('author/delete/<int:pk>/', delete_author, name='delete_author'),
 
+    path('send_message/', base_send_message, name='base_send_message'),
     path('send_message/<int:pk>/<int:user_id>/', send_message, name='send_message'),
 
     path('sections/', list_sections, name='sections'),

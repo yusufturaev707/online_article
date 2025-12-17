@@ -1055,7 +1055,6 @@ def reviewer_notifications(request):
 
 
 
-
 @login_required(login_url='login')
 @allowed_users(role=['admin', 'editor', 'reviewer', 'author'])
 def author_vs_editor_vs_reviewer(request, pk):

@@ -966,6 +966,10 @@ def delete_author(request, pk):
     else:
         return render(request, 'article_app/crud/delete_author.html', {'author': author})
 
+@login_required(login_url='login')
+def base_send_message(request):
+    return HttpResponse('ok')
+
 
 @login_required(login_url='login')
 def send_message(request, pk, user_id):
