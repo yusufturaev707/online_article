@@ -988,12 +988,6 @@ def editor_notifications(request):
             notification_status_id=3).filter(
             Q(article__article_status__key=3) | Q(article__article_status__key=9)).order_by('-id')
 
-
-        lang = get_language()
-        url = f"/{lang}/profile/editor_check_article/"
-        if lang == 'uz':
-            url = f"/profile/editor_check_article/"
-
         data = {
             "new_notifications": list(new_notifications.values(
                 'id', 'created_at', 'article__id', 'article__title', 'notification_status__id',
@@ -1025,7 +1019,6 @@ def editor_notifications(request):
                 'article__author__email', 'is_update_article', 'article__article_status__key',
                 'article__article_status__name'
             )),
-            "url": url,
         }
 
         return JsonResponse(data)
@@ -1152,6 +1145,11 @@ def count_notification(request):
                  'id', 'from_user__avatar', 'from_user__first_name', 'from_user__last_name',
                  'created_at'
              ))})
+
+@login_required(login_url='login')
+@allowed_users(role=['editor'])
+def editor_check(request):
+    return HttpResponse("OK")
 
 @login_required(login_url='login')
 @allowed_users(role=['editor'])

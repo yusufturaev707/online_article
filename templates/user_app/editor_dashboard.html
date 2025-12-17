@@ -132,6 +132,8 @@
 
                     let data_new = response['new_notifications'];
 
+                    let base_url = "{% url 'editor_check' %}";
+
                     if (data_new.length > 0) {
                         for (let item of data_new) {
 
@@ -145,7 +147,7 @@
                                 `<td>` + time_string + `</td>` +
                                 `<td>` + item['article__article_status__name'] + `</td>` +
                                 `<td id="view_notif_id${item['id']}"></td>` +
-                                `<td><button type="button" data-url="${response.url}${item['id']}/" class="btn btn-outline-primary btn-md article_view_editor forshadow" ` +
+                                `<td><button type="button" data-url="${base_url}${item['id']}/" class="btn btn-outline-primary btn-md article_view_editor forshadow" ` +
                                 `style="float: right"><i class="fas fa-fw m-r-5 fa-pen"></i>
                                 </button></td>`
                                 + `</tr>`;
@@ -180,7 +182,7 @@
                                 `<td>` + time_string + `</td>` +
                                 `<td><span class="badge badge-grey">` + item['article__article_status__name'] + `</span></td>` +
                                 `<td id="view_notif_cheking_id${item.id}"></td>` +
-                                `<td><button type="button" data-url="${response.url}${item.id}/" class="btn btn-outline-primary btn-md article_view_editor forshadow" ` +
+                                `<td><button type="button" data-url="${base_url}${item.id}/" class="btn btn-outline-primary btn-md article_view_editor forshadow" ` +
                                 `style="float: right"><i class="fas fa-fw m-r-5 fa-pen"></i>
                                 </button></td>`
                                 + `</tr>`;
@@ -214,7 +216,7 @@
                                 `<td>` + time_string + `</td>` +
                                 `<td><span class="badge badge-grey">` + item['article__article_status__name'] + `</span></td>` +
                                 `<td id="view_notif_checked_id${item.id}"></td>` +
-                                `<td><button type="button" data-url="${response.url}${item.id}/" class="btn btn-outline-primary btn-md article_view_editor forshadow" style="float: right"><i class="fas fa-fw m-r-5 fa-pen"></i>
+                                `<td><button type="button" data-url="${base_url}${item.id}/" class="btn btn-outline-primary btn-md article_view_editor forshadow" style="float: right"><i class="fas fa-fw m-r-5 fa-pen"></i>
                                 </button></td>`
                                 + `</tr>`;
 
@@ -246,7 +248,7 @@
                                 `<td>` + time_string + `</td>` +
                                 `<td><span class="badge badge-grey">` + item['article__article_status__name'] + `</span></td>` +
                                 `<td id="view_notif_confirmed_id${item.id}"></td>` +
-                                `<td><button type="button" data-url="${response.url}${item.id}/" class="btn btn-outline-primary btn-md article_view_editor forshadow" style="float: right"><i class="fas fa-fw m-r-5 fa-pen"></i>
+                                `<td><button type="button" data-url="${base_url}${item.id}/" class="btn btn-outline-primary btn-md article_view_editor forshadow" style="float: right"><i class="fas fa-fw m-r-5 fa-pen"></i>
                                 </button></td>`
                                 + `</tr>`;
 
@@ -277,7 +279,7 @@
                                 `<td>` + time_string + `</td>` +
                                 `<td><span class="badge badge-grey">` + item['article__article_status__name'] + `</span></td>` +
                                 `<td id="view_notif_rejected_id${item.id}"></td>` +
-                                `<td><button type="button" data-url="${response.url}${item.id}/" class="btn btn-outline-primary btn-md article_view_editor forshadow" style="float: right"><i class="fas fa-fw m-r-5 fa-pen"></i>
+                                `<td><button type="button" data-url="${base_url}${item.id}/" class="btn btn-outline-primary btn-md article_view_editor forshadow" style="float: right"><i class="fas fa-fw m-r-5 fa-pen"></i>
                                 </button></td>`
                                 + `</tr>`;
 
