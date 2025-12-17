@@ -17,6 +17,8 @@ def unauthenticated_user(view_func):
                 return redirect('my_submit_tests')
             elif request.user.is_pupil:
                 return redirect('pupil_dashboard')
+            elif request.user.is_reviewer:
+                return redirect('dashboard')
         else:
             return view_func(request, *args, **kwargs)
 
@@ -73,7 +75,8 @@ def allowed_users(role=None):
                         return view_func(request, *args, **kwargs)
                     else:
                         return render(request, 'user_app/not_access.html')
-
+                else:
+                    return render(request, 'user_app/not_access.html')
         return wrapper_func
 
     return decorator
