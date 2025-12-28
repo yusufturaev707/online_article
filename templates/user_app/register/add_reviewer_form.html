@@ -1,48 +1,151 @@
 {% load i18n %}
 {% load static %}
-<form data-url="{% url 'choosen_reviewer_role' %}" data-parsley-validate="true" method="post" id="choosen_reviewerRole_form">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+    tailwind.config = { prefix: 'tw-' }
+</script>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+<form data-url="{% url 'choosen_reviewer_role' %}" data-parsley-validate="true" method="post" id="choosen_reviewerRole_form" enctype="multipart/form-data">
     {% csrf_token %}
     <div class="modal fade" id="choosen_reviewerRole">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">{% trans "Hurmatli talabgor formani to'ldiring" %}</h5>
-                    <a href="#" class="close" data-dismiss="modal">&times;</a>
-                </div>
-                <div class="modal-body">
-                    <div class="form-group row m-b-15" hidden>
-                        <label class="col-md-3 col-sm-3 col-form-label">{% trans "Maqola" %} <span
-                                class="text-danger">*</span></label>
-                        <div class="col-md-9 col-sm-9">
-                            <select id="id_user" name="user" class="form-control">
-                                <option selected value="{{ user.id }}">{{ user.username }}</option>
-                            </select>
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content tw-border-0 tw-rounded-2xl tw-overflow-hidden tw-shadow-2xl">
+                <!-- Header -->
+                <div class="tw-bg-gradient-to-r tw-from-purple-600 tw-to-pink-600 tw-px-6 tw-py-4">
+                    <div class="tw-flex tw-items-center tw-justify-between">
+                        <div class="tw-flex tw-items-center tw-gap-3">
+                            <div class="tw-w-10 tw-h-10 tw-bg-white/20 tw-rounded-full tw-flex tw-items-center tw-justify-center">
+                                <span class="material-icons tw-text-white">rate_review</span>
+                            </div>
+                            <div>
+                                <h5 class="tw-text-white tw-font-bold tw-text-lg tw-m-0">{% trans "Taqrizchi arizasi" %}</h5>
+                                <p class="tw-text-purple-200 tw-text-xs tw-m-0">{% trans "Formani to'ldiring" %}</p>
+                            </div>
                         </div>
+                        <button type="button" class="tw-w-8 tw-h-8 tw-bg-white/20 hover:tw-bg-white/30 tw-rounded-full tw-flex tw-items-center tw-justify-center tw-transition-colors tw-border-0" data-dismiss="modal">
+                            <span class="material-icons tw-text-white tw-text-lg">close</span>
+                        </button>
                     </div>
-                    <div class="form-group row m-b-15">
-                        <label class="col-md-3 col-sm-3 col-form-label">{% trans "Ruknni tanlang" %} <span
-                                class="text-danger">*</span></label>
-                        <div class="col-md-9 col-sm-9">
+                </div>
+
+                <!-- Body -->
+                <div class="tw-p-6 tw-bg-gray-50">
+                    <!-- Hidden user field -->
+                    <div hidden>
+                        <select id="id_user" name="user" class="form-control">
+                            <option selected value="{{ user.id }}">{{ user.username }}</option>
+                        </select>
+                    </div>
+
+                    <!-- Info box -->
+                    <div class="tw-flex tw-items-start tw-gap-3 tw-p-4 tw-bg-blue-50 tw-rounded-xl tw-border tw-border-blue-200 tw-mb-5">
+                        <div class="tw-flex-shrink-0 tw-w-8 tw-h-8 tw-bg-blue-500 tw-rounded-full tw-flex tw-items-center tw-justify-center">
+                            <span class="material-icons tw-text-white tw-text-sm">info</span>
+                        </div>
+                        <p class="tw-text-blue-700 tw-text-sm tw-m-0">
+                            {% trans "Taqrizchi bo'lish uchun o'zingiz mutaxassis bo'lgan ruknlarni tanlang va ilmiy ishlaringiz ro'yxatini yuklang." %}
+                        </p>
+                    </div>
+
+                    <!-- Section selection -->
+                    <div class="tw-mb-5">
+                        <label class="tw-flex tw-items-center tw-gap-2 tw-text-gray-700 tw-font-semibold tw-text-sm tw-mb-2">
+                            <span class="material-icons tw-text-purple-500 tw-text-lg">category</span>
+                            {% trans "Ruknni tanlang" %}
+                            <span class="tw-text-red-500">*</span>
+                        </label>
+                        <div class="tw-bg-white tw-rounded-xl tw-border tw-border-gray-200 tw-p-1">
                             {{ form.section }}
                         </div>
+                        <p class="tw-text-gray-500 tw-text-xs tw-mt-1 tw-ml-1">{% trans "Bir nechta ruknni tanlashingiz mumkin" %}</p>
                     </div>
-                    <div class="form-group row m-b-15">
-                        <label class="col-md-3 col-sm-3 col-form-label">{% trans "Fayl" %}<span
-                                class="text-danger">*</span></label>
-                        <div class="col-md-9 col-sm-9">
-                            <label class="form-check-label">{% trans "Chop etilgan ilmiy ishlaringiz ro‘yxatini yuklang" %}</label>
+
+                    <!-- File upload -->
+                    <div class="tw-mb-2">
+                        <label class="tw-flex tw-items-center tw-gap-2 tw-text-gray-700 tw-font-semibold tw-text-sm tw-mb-2">
+                            <span class="material-icons tw-text-purple-500 tw-text-lg">upload_file</span>
+                            {% trans "Fayl yuklash" %}
+                            <span class="tw-text-red-500">*</span>
+                        </label>
+                        <div class="tw-bg-white tw-rounded-xl tw-border-2 tw-border-dashed tw-border-gray-300 hover:tw-border-purple-400 tw-p-4 tw-transition-colors">
+                            <div class="tw-text-center tw-mb-3">
+                                <div class="tw-w-12 tw-h-12 tw-bg-purple-100 tw-rounded-full tw-flex tw-items-center tw-justify-center tw-mx-auto tw-mb-2">
+                                    <span class="material-icons tw-text-purple-500">cloud_upload</span>
+                                </div>
+                                <p class="tw-text-gray-600 tw-text-sm tw-m-0">{% trans "Chop etilgan ilmiy ishlaringiz ro'yxatini yuklang" %}</p>
+                                <p class="tw-text-gray-400 tw-text-xs tw-m-0">{% trans "Fayl formatlari: .doc, .docx, .pdf" %}</p>
+                            </div>
                             {{ fileForm.file }}
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <a class="close btn btn-outline-info" id="choosen_reiewer_role_modal"
-                       data-dismiss="modal">{% trans "Yopish" %}</a>
-                    <button type="submit" class="btn btn-success">{% trans "Yuborish" %}</button>
+
+                <!-- Footer -->
+                <div class="tw-bg-white tw-px-6 tw-py-4 tw-border-t tw-border-gray-100">
+                    <div class="tw-flex tw-items-center tw-justify-end tw-gap-3">
+                        <button type="button" class="tw-flex tw-items-center tw-gap-2 tw-px-5 tw-py-2.5 tw-bg-gray-100 hover:tw-bg-gray-200 tw-text-gray-700 tw-rounded-lg tw-font-medium tw-text-sm tw-transition-colors tw-border-0" data-dismiss="modal">
+                            <span class="material-icons tw-text-lg">close</span>
+                            {% trans "Bekor qilish" %}
+                        </button>
+                        <button type="submit" class="tw-flex tw-items-center tw-gap-2 tw-px-5 tw-py-2.5 tw-bg-gradient-to-r tw-from-purple-600 tw-to-pink-600 hover:tw-from-purple-700 hover:tw-to-pink-700 tw-text-white tw-rounded-lg tw-font-medium tw-text-sm tw-shadow-lg hover:tw-shadow-xl tw-transition-all tw-border-0">
+                            <span class="material-icons tw-text-lg">send</span>
+                            {% trans "Yuborish" %}
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </form>
+
 <script src="{% static '/assets/js/demo/form-plugins.demo.js' %}"></script>
 <script src="{% static '/assets/plugins/parsleyjs/dist/parsley.min.js' %}"></script>
+
+<script>
+    // Form submit handler
+    $('body').on('submit', '#choosen_reviewerRole_form', function (e) {
+        e.preventDefault();
+
+        let url = $(this).data('url');
+        let formData = new FormData(this);
+
+        $.ajax({
+            type: 'POST',
+            url: url,
+            data: formData,
+            cache: false,
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                $('#choosen_reviewerRole').modal('hide');
+                if (response.result) {
+                    swal({
+                        title: "Muvaffaqiyat!",
+                        text: response.message,
+                        icon: "success",
+                        timer: 2000
+                    }).then(function() {
+                        window.location.reload();
+                    });
+                } else {
+                    swal({
+                        title: "Xatolik!",
+                        text: response.message,
+                        icon: "error",
+                        timer: 3000
+                    });
+                }
+            },
+            error: function (error) {
+                console.log(error);
+                swal({
+                    title: "Xatolik!",
+                    text: "So'rovni yuborishda xatolik yuz berdi",
+                    icon: "error",
+                    timer: 3000
+                });
+            }
+        });
+    });
+</script>
