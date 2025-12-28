@@ -2,8 +2,10 @@ import datetime
 import re
 import subprocess
 import sys
+from logging import raiseExceptions
 
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ValidationError
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.template.loader import render_to_string
@@ -578,12 +580,8 @@ def delete_notification_status(request, pk):
 @allowed_users(role=['admin', 'editor', 'reviewer', 'author'])
 def create_article(request):
     user = User.objects.get(pk=request.user.id)
-    if user.is_get_ps_data and user.is_full_personal_data:
-        data = {
-            "result": False,
-            "message": _("Shaxsiy ma'lumotlarizni to'ldiring!"),
-        }
-        return JsonResponse(data=data)
+    if not user.is_get_ps_data or not user.is_full_personal_data:
+        raise ValidationError(_("Shaxsiy ma'lumotlarizni to'ldiring!"))
 
     if request.method == "POST" and is_ajax(request):
         try:
@@ -639,7 +637,7 @@ def create_article(request):
         except Exception as e:
             data = {
                 "result": False,
-                "message": _("Forma to'ldirishda yoki shaxsiy ma'lumotlar to'liq to'ldirilmaganligi sabab xatolik yuz berdi!"),
+                "message": f"Xatolik: {e}",
             }
             return JsonResponse(data=data)
     else:
