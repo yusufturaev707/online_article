@@ -150,22 +150,25 @@
                         {% trans "Tekshiruv kodi" %}
                     </span>
                 </label>
-                <div class="flex items-center gap-3">
-                    <div class="flex-shrink-0 bg-white border-2 border-gray-200 rounded-xl p-2 flex items-center gap-2">
-                        <input type="hidden" name="captcha_0" id="id_captcha_0" value="" />
-                        <img src="" alt="captcha" class="captcha-image h-10 rounded-lg" />
-                        <button type="button" onclick="refreshCaptcha()" class="p-2 hover:bg-gray-100 rounded-lg transition-colors" title="{% trans 'Yangilash' %}">
-                            <span class="material-icons-outlined text-emerald-500">refresh</span>
+                <input type="hidden" name="captcha_0" id="id_captcha_0" value="" />
+                <div class="flex items-center justify-between bg-gray-50 border-2 border-gray-200 rounded-xl p-3">
+                    <div class="flex items-center gap-2">
+                        <img src="" alt="captcha" class="captcha-image h-9 rounded" />
+                        <button type="button" onclick="refreshCaptcha()" class="p-1.5 hover:bg-gray-200 rounded-lg transition-colors" title="{% trans 'Yangilash' %}">
+                            <span class="material-icons-outlined text-emerald-500 text-xl">refresh</span>
                         </button>
                     </div>
-                    <input type="text"
-                           name="captcha_1"
-                           id="id_captcha_1"
-                           class="captcha-input input-field flex-1 px-4 py-3.5 bg-gray-50 border-2 border-gray-200 rounded-xl focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20 outline-none transition-all font-mono text-lg"
-                           placeholder="= ?"
-                           maxlength="10"
-                           autocomplete="off"
-                           required />
+                    <div class="flex items-center gap-2">
+                        <span class="text-gray-400">=</span>
+                        <input type="text"
+                               name="captcha_1"
+                               id="id_captcha_1"
+                               class="w-20 px-3 py-2 bg-white border-2 border-gray-200 rounded-lg focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all font-mono text-lg text-center"
+                               placeholder="?"
+                               maxlength="5"
+                               autocomplete="off"
+                               required />
+                    </div>
                 </div>
             </div>
 

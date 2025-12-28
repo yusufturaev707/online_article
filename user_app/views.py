@@ -859,7 +859,7 @@ def register_page(request):
             "success": True,
             "is_captcha": False,
             "message": _("Ro'yxatdan muvaffaqiyatli o'tdingiz! Iltimos tizimga kiring."),
-            "redirect_url": "/profile/login/"
+            "redirect_url": "/ax_clone_site/profile/login/"
         })
 
     # GET method
