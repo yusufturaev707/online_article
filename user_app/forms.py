@@ -3,6 +3,10 @@ from django import forms
 from django.forms import Select, TextInput, SelectMultiple, NumberInput, Textarea, PasswordInput
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from user_app.models import *
+from user_app.sanitizer import (
+    sanitize_text, sanitize_comment, sanitize_username,
+    sanitize_email, sanitize_phone, sanitize_url, contains_xss
+)
 from django.utils.translation import gettext_lazy as _
 from ckeditor_uploader.widgets import CKEditorUploadingWidget
 from django.contrib.auth.forms import AuthenticationForm
@@ -70,6 +74,22 @@ class UpdateUserForm(UserChangeForm):
         super(UpdateUserForm, self).__init__(*args, **kwargs)
         self.fields['sc_degree'].empty_label = _("Tanlang")
 
+    def clean_username(self):
+        username = self.cleaned_data.get('username', '')
+        return sanitize_username(username)
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email', '')
+        return sanitize_email(email)
+
+    def clean_phone(self):
+        phone = self.cleaned_data.get('phone', '')
+        return sanitize_phone(phone)
+
+    def clean_work(self):
+        work = self.cleaned_data.get('work', '')
+        return sanitize_text(work)
+
 
 class ReviewerFileForm(forms.ModelForm):
     file = forms.FileField(
@@ -107,6 +127,9 @@ class CreateCountryForm(forms.ModelForm):
             }),
         }
 
+    def clean_name(self):
+        return sanitize_text(self.cleaned_data.get('name', ''))
+
 
 class CreateRegionForm(forms.ModelForm):
     class Meta:
@@ -119,6 +142,9 @@ class CreateRegionForm(forms.ModelForm):
             }),
         }
 
+    def clean_name(self):
+        return sanitize_text(self.cleaned_data.get('name', ''))
+
 
 class CreateGenderForm(forms.ModelForm):
     class Meta:
@@ -130,6 +156,9 @@ class CreateGenderForm(forms.ModelForm):
                 'class': 'form-control',
             }),
         }
+
+    def clean_name(self):
+        return sanitize_text(self.cleaned_data.get('name', ''))
 
 
 class CreateRoleForm(forms.ModelForm):
@@ -149,6 +178,12 @@ class CreateRoleForm(forms.ModelForm):
             }),
         }
 
+    def clean_name(self):
+        return sanitize_text(self.cleaned_data.get('name', ''))
+
+    def clean_code_name(self):
+        return sanitize_text(self.cleaned_data.get('code_name', ''))
+
 
 class CreateScientificDegreeForm(forms.ModelForm):
     class Meta:
@@ -163,6 +198,9 @@ class CreateScientificDegreeForm(forms.ModelForm):
                 'class': 'form-control',
             }),
         }
+
+    def clean_name(self):
+        return sanitize_text(self.cleaned_data.get('name', ''))
 
 
 class CreateMenuForm(forms.ModelForm):
@@ -196,6 +234,18 @@ class CreateMenuForm(forms.ModelForm):
             }),
         }
 
+    def clean_name(self):
+        return sanitize_text(self.cleaned_data.get('name', ''))
+
+    def clean_url(self):
+        return sanitize_url(self.cleaned_data.get('url', ''))
+
+    def clean_url_name(self):
+        return sanitize_text(self.cleaned_data.get('url_name', ''))
+
+    def clean_icon_name(self):
+        return sanitize_text(self.cleaned_data.get('icon_name', ''))
+
 
 class ReviewArticleForm(forms.ModelForm):
     class Meta:
@@ -209,5 +259,8 @@ class ReviewArticleForm(forms.ModelForm):
                 'name': 'comment',
                 'id': 'id_comment',
             }),
-
         }
+
+    def clean_comment(self):
+        """Izohni XSS dan tozalash"""
+        return sanitize_comment(self.cleaned_data.get('comment', ''))

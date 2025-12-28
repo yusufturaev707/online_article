@@ -68,6 +68,14 @@
         </div>
     </div>
     <script type="text/javascript">
+        // XSS himoyasi uchun HTML escape funksiyasi
+        function escapeHtml(text) {
+            if (text === null || text === undefined) return '';
+            const div = document.createElement('div');
+            div.textContent = String(text);
+            return div.innerHTML;
+        }
+
         function isCheckView(is_check) {
             let sp = ``;
             if (is_check === true) {
@@ -81,20 +89,21 @@
 
         function statusView(code, name) {
             let st = ``;
+            let safeName = escapeHtml(name);
             if (code === 4) {
-                st = st + `<span class="badge badge-info">` + name + `</span>`;
+                st = st + `<span class="badge badge-info">` + safeName + `</span>`;
             }
             if (code === 3) {
-                st = st + `<span class="badge badge-info">` + name + `</span>`;
+                st = st + `<span class="badge badge-info">` + safeName + `</span>`;
             }
             if (code === 2) {
-                st = st + `<span class="badge badge-warning">` + name + `</span>`;
+                st = st + `<span class="badge badge-warning">` + safeName + `</span>`;
             }
             if (code === 0) {
-                st = st + `<span class="badge badge-danger">` + name + `</span>`;
+                st = st + `<span class="badge badge-danger">` + safeName + `</span>`;
             }
             if (code === 1) {
-                st = st + `<span class="badge badge-success">` + name + `</span>`;
+                st = st + `<span class="badge badge-success">` + safeName + `</span>`;
             }
             return st;
         }
@@ -151,7 +160,7 @@
                         data: null,
                         bSortable: false,
                         render: function (data, type, row) {
-                            return '<span class="badge badge-green">' + data['level_d'] + '</span>';
+                            return '<span class="badge badge-green">' + escapeHtml(data['level_d']) + '</span>';
                         }
                     },
                     {
@@ -159,14 +168,15 @@
                         bSortable: false,
                         render: function (data, type, row) {
                             let st = '';
+                            let safeStatus = escapeHtml(data['status_test']);
                             if (data['status_test_code'] === 0){
-                                st = '<span class="badge badge-danger">' + data['status_test'] + '</span>';
+                                st = '<span class="badge badge-danger">' + safeStatus + '</span>';
                             } else if (data['status_test_code'] === 1) {
-                                 st = '<span class="badge badge-success">' + data['status_test'] + '</span>';
+                                 st = '<span class="badge badge-success">' + safeStatus + '</span>';
                             } else if (data['status_test_code'] === 2) {
-                                 st = '<span class="badge badge-warning">' + data['status_test'] + '</span>';
+                                 st = '<span class="badge badge-warning">' + safeStatus + '</span>';
                             } else if (data['status_test_code'] === 3) {
-                                 st = '<span class="badge badge-indigo">' + data['status_test'] + '</span>';
+                                 st = '<span class="badge badge-indigo">' + safeStatus + '</span>';
                             }
                             return st;
                         }

@@ -40,6 +40,13 @@
     <div class="sidebar-bg"></div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script type="text/javascript">
+        // XSS himoyasi uchun HTML escape funksiyasi
+        function escapeHtml(text) {
+            if (text === null || text === undefined) return '';
+            const div = document.createElement('div');
+            div.textContent = String(text);
+            return div.innerHTML;
+        }
 
         $('body').ready(function () {
             let url = '{% url 'load_menus' %}'.toString();
@@ -61,9 +68,9 @@
                         if (lang === 'uz') {
                             link = item.url;
                         }
-                        let temp1 = `<li id="menu_${item.id}">` +
-                            `<a href="${link}"><span id="badge_${item.id}" style="font-size: 14px; background-color: #4DA704; color: white;"></span>` +
-                            `<i class="material-icons">${item['icon_name']}</i><span>${item.name}</span>` + `</a></li>`;
+                        let temp1 = `<li id="menu_${escapeHtml(item.id)}">` +
+                            `<a href="${escapeHtml(link)}"><span id="badge_${escapeHtml(item.id)}" style="font-size: 14px; background-color: #4DA704; color: white;"></span>` +
+                            `<i class="material-icons">${escapeHtml(item['icon_name'])}</i><span>${escapeHtml(item.name)}</span>` + `</a></li>`;
                         $('#menu_sidebar').append(temp1);
 
                         if (base_url === item['url_name'].toString()) {
@@ -80,9 +87,9 @@
                             link = item.url;
                         }
 
-                        let temp2 = `<li id="menu_${item.id}">` +
-                            `<a href="${link}"><span id="badge_${item.id}" style="font-size: 14px; background-color: #F3B304; color: white;"></span>` +
-                            `<i class="material-icons">${item['icon_name']}</i><span>${item.name}</span>` + `</a></li>`;
+                        let temp2 = `<li id="menu_${escapeHtml(item.id)}">` +
+                            `<a href="${escapeHtml(link)}"><span id="badge_${escapeHtml(item.id)}" style="font-size: 14px; background-color: #F3B304; color: white;"></span>` +
+                            `<i class="material-icons">${escapeHtml(item['icon_name'])}</i><span>${escapeHtml(item.name)}</span>` + `</a></li>`;
                         $('#menu_sidebar').append(temp2);
 
                         if (base_url === item['url_name'].toString()) {
@@ -99,9 +106,9 @@
                             link = item.url;
                         }
 
-                        let temp = `<li id="menu_${item.id}">` +
-                            `<a href="${link}"><span id="badge_${item.id}" style="font-size: 14px; background-color: #4DA704; color: white;"></span>` +
-                            `<i class="material-icons">${item['icon_name']}</i><span>${item.name}</span>` + `</a></li>`;
+                        let temp = `<li id="menu_${escapeHtml(item.id)}">` +
+                            `<a href="${escapeHtml(link)}"><span id="badge_${escapeHtml(item.id)}" style="font-size: 14px; background-color: #4DA704; color: white;"></span>` +
+                            `<i class="material-icons">${escapeHtml(item['icon_name'])}</i><span>${escapeHtml(item.name)}</span>` + `</a></li>`;
                         $('#menu_sidebar').append(temp);
 
                         if (base_url === item['url_name'].toString()) {

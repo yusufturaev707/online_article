@@ -145,6 +145,14 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
     <script type="text/javascript">
+        // XSS himoyasi uchun HTML escape funksiyasi
+        function escapeHtml(text) {
+            if (text === null || text === undefined) return '';
+            const div = document.createElement('div');
+            div.textContent = String(text);
+            return div.innerHTML;
+        }
+
         $(document).ready(function () {
             let config1 = {
                     type: 'doughnut',
@@ -252,21 +260,21 @@
                             let step_code = response.data[i]['step_code'];
 
                             if(step_code === 5){
-                                status_tr += `<span class="badge badge-success">${response.data[i]['step']}</span>`;
+                                status_tr += `<span class="badge badge-success">${escapeHtml(response.data[i]['step'])}</span>`;
                             } else {
-                                status_tr += `<span class="badge badge-warning">${response.data[i]['step']}</span>`;
+                                status_tr += `<span class="badge badge-warning">${escapeHtml(response.data[i]['step'])}</span>`;
                             }
 
                             if (response.data[i]['test_type'] === 1){
-                                tr1 += `<b>{% trans "Bo'lim:" %}</b>&nbsp;` + response.data[i]['part'] + `<br>`;
-                                tr1 += `<b>{% trans "Qiyinlik darajasi:" %}</b>&nbsp;<span class="badge badge-blue">` + response.data[i]['level_d'] + `</span><br>`;
-                                tr1 += `<b>{% trans "Qism:" %}</b>&nbsp;` + response.data[i]['part_option_name'] + `</span><br>`;
-                                tr1 += `<b>{% trans "Mavzu:" %}</b>&nbsp;` + response.data[i]['topic_n'] + `</span><br>`;
-                                tr1 += `<b>{% trans "Yuborilgan vaqti:" %}</b><span style="color: #656464">&nbsp;` + response.data[i]['created_at'] + `</span><br>`;
+                                tr1 += `<b>{% trans "Bo'lim:" %}</b>&nbsp;` + escapeHtml(response.data[i]['part']) + `<br>`;
+                                tr1 += `<b>{% trans "Qiyinlik darajasi:" %}</b>&nbsp;<span class="badge badge-blue">` + escapeHtml(response.data[i]['level_d']) + `</span><br>`;
+                                tr1 += `<b>{% trans "Qism:" %}</b>&nbsp;` + escapeHtml(response.data[i]['part_option_name']) + `</span><br>`;
+                                tr1 += `<b>{% trans "Mavzu:" %}</b>&nbsp;` + escapeHtml(response.data[i]['topic_n']) + `</span><br>`;
+                                tr1 += `<b>{% trans "Yuborilgan vaqti:" %}</b><span style="color: #656464">&nbsp;` + escapeHtml(response.data[i]['created_at']) + `</span><br>`;
                             } else if (response.data[i]['test_type'] === 2) {
-                                tr1 += `<b>{% trans "Mavzusi:" %}</b>&nbsp;` + response.data[i]['topic'] + `<br>`;
-                                tr1 += `<b>{% trans "Bob:" %}</b>&nbsp;` + response.data[i]['chapter'] + `<br>`;
-                                tr1 += `<b>{% trans "Bo'lim" %}</b>&nbsp;` + response.data[i]['section'] + `<br>`;
+                                tr1 += `<b>{% trans "Mavzusi:" %}</b>&nbsp;` + escapeHtml(response.data[i]['topic']) + `<br>`;
+                                tr1 += `<b>{% trans "Bob:" %}</b>&nbsp;` + escapeHtml(response.data[i]['chapter']) + `<br>`;
+                                tr1 += `<b>{% trans "Bo'lim" %}</b>&nbsp;` + escapeHtml(response.data[i]['section']) + `<br>`;
                             }
 
 
@@ -286,7 +294,7 @@
 
                         let card = `<div class="card forshadow"><div class="row">` +
                            `<div class="card-body col-lg-4">` +
-                           `<h5 class="card-title">${response.data[i]['id']}.&nbsp;${response.data[i]['subject']}</h5>` +
+                           `<h5 class="card-title">${escapeHtml(response.data[i]['id'])}.&nbsp;${escapeHtml(response.data[i]['subject'])}</h5>` +
                            `<div class="container-fluid" style="margin-left: 1em">` +
                            `<p class="card-text">` + tr1 +`</p>` +
                            `<p><b>{% trans "Holati:" %}</b>&nbsp;${status_tr}</p>` +

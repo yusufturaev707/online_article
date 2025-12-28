@@ -64,6 +64,14 @@
     </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script type="text/javascript">
+        // XSS himoyasi uchun HTML escape funksiyasi
+        function escapeHtml(text) {
+            if (text === null || text === undefined) return '';
+            const div = document.createElement('div');
+            div.textContent = String(text);
+            return div.innerHTML;
+        }
+
         $(document).ready(function () {
             let url = '{% url 'reviewer_notifications' %}'.toString();
 
@@ -83,24 +91,24 @@
                                 let time_string = time.toLocaleString();
 
                                 let uncheck = `<tr>` +
-                                    `<td>` + item.id + `</td>` +
-                                    `<td><b>` + item.from_user__email + `</b><br>` + item.message + `</td>` +
-                                    `<td>` + time_string + `</td>` +
-                                    `<td id="view_notif_id${item.id}"></td>` +
-                                    `<td><button type="button" data-url="${response.url}${item.id}/" class="btn btn-outline-primary btn-md article_view_reviewer forshadow" style="float: right">
+                                    `<td>` + escapeHtml(item.id) + `</td>` +
+                                    `<td><b>` + escapeHtml(item.from_user__email) + `</b><br>` + escapeHtml(item.message) + `</td>` +
+                                    `<td>` + escapeHtml(time_string) + `</td>` +
+                                    `<td id="view_notif_id${escapeHtml(item.id)}"></td>` +
+                                    `<td><button type="button" data-url="${escapeHtml(response.url)}${escapeHtml(item.id)}/" class="btn btn-outline-primary btn-md article_view_reviewer forshadow" style="float: right">
 <i class="fas fa-fw m-r-5 fa-pen"></i></button></td>`
                                     + `</tr>`;
 
                                 $('#reviewer_uncheck_notifications').append(uncheck);
 
                                 if (item.notification_status__id === 1) {
-                                    $('#view_notif_id' + item.id).html("<span class='badge badge-danger'>" + item.notification_status__name + "</span>");
+                                    $('#view_notif_id' + item.id).html("<span class='badge badge-danger'>" + escapeHtml(item.notification_status__name) + "</span>");
                                 }
                                 if (item.notification_status__id === 2) {
-                                    $('#view_notif_id' + item.id).html("<span class='badge badge-warning'>" + item.notification_status__name + "</span>");
+                                    $('#view_notif_id' + item.id).html("<span class='badge badge-warning'>" + escapeHtml(item.notification_status__name) + "</span>");
                                 }
                                 if (item.notification_status__id === 3) {
-                                    $('#view_notif_id' + item.id).html("<span class='badge badge-success'>" + item.notification_status__name + "</span>");
+                                    $('#view_notif_id' + item.id).html("<span class='badge badge-success'>" + escapeHtml(item.notification_status__name) + "</span>");
                                 }
 
                             }
@@ -118,17 +126,17 @@
                                 let time_string = time.toLocaleString();
 
                                 let checked = `<tr>` +
-                                    `<td>` + item.id + `</td>` +
-                                    `<td><b>` + item.from_user__email + `</b><br>` + item.message + `</td>` +
-                                    `<td>` + time_string + `</td>` +
-                                    `<td id="view_notif_checked_id${item.id}"></td>` +
-                                    `<td><button type="button" data-url="${response.url}${item.id}/" class="btn btn-outline-primary btn-md article_view_reviewer forshadow" style="float: right"><i class="fas fa-fw m-r-5 fa-pen"></i>
+                                    `<td>` + escapeHtml(item.id) + `</td>` +
+                                    `<td><b>` + escapeHtml(item.from_user__email) + `</b><br>` + escapeHtml(item.message) + `</td>` +
+                                    `<td>` + escapeHtml(time_string) + `</td>` +
+                                    `<td id="view_notif_checked_id${escapeHtml(item.id)}"></td>` +
+                                    `<td><button type="button" data-url="${escapeHtml(response.url)}${escapeHtml(item.id)}/" class="btn btn-outline-primary btn-md article_view_reviewer forshadow" style="float: right"><i class="fas fa-fw m-r-5 fa-pen"></i>
                                 </button></td>` + `</tr>`;
 
                                 $('#reviewer_checked_notifications').append(checked);
 
                                 if (item.notification_status__id === 3) {
-                                    $('#view_notif_checked_id' + item.id).html("<span class='badge badge-success'>" + item.notification_status__name + "</span>");
+                                    $('#view_notif_checked_id' + item.id).html("<span class='badge badge-success'>" + escapeHtml(item.notification_status__name) + "</span>");
                                 }
                             }
                         } else {
