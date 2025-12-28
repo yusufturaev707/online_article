@@ -639,7 +639,7 @@ def create_article(request):
         except Exception as e:
             data = {
                 "result": False,
-                "message": f"Xatolik: {e}",
+                "message": _("Forma to'ldirishda yoki shaxsiy ma'lumotlar to'liq to'ldirilmaganligi sabab xatolik yuz berdi!"),
             }
             return JsonResponse(data=data)
     else:
