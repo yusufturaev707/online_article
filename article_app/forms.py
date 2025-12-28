@@ -1,6 +1,7 @@
 from django import forms
 from django.forms import TextInput, Textarea, FileInput, Select
 from article_app.models import *
+from article_app.sanitizer import sanitize_title, sanitize_keywords, sanitize_abstract, sanitize_plain_text
 from ckeditor_uploader.widgets import CKEditorUploadingWidget
 from django.utils.translation import gettext_lazy as _
 
@@ -53,6 +54,11 @@ class CreateArticleForm(forms.ModelForm):
         self.fields['article_type'].empty_label = _("Tanlang")
         self.fields['article_lang'].empty_label = _("Tanlang")
         self.fields['section'].empty_label = _("Tanlang")
+
+    def clean_title(self):
+        """Sarlavhani XSS dan tozalash"""
+        title = self.cleaned_data.get('title', '')
+        return sanitize_title(title)
 
 
 class CreateArticleFileForm(forms.ModelForm):
@@ -163,6 +169,36 @@ class UpdateArticleForm(forms.ModelForm):
         self.fields['article_type'].empty_label = _("Tanlang")
         self.fields['article_lang'].empty_label = _("Tanlang")
 
+    def clean_title(self):
+        """Sarlavhani XSS dan tozalash"""
+        title = self.cleaned_data.get('title', '')
+        return sanitize_title(title)
+
+    def clean_title_en(self):
+        """Inglizcha sarlavhani XSS dan tozalash"""
+        title_en = self.cleaned_data.get('title_en', '')
+        return sanitize_title(title_en)
+
+    def clean_abstract(self):
+        """Annotatsiyani XSS dan tozalash"""
+        abstract = self.cleaned_data.get('abstract', '')
+        return sanitize_abstract(abstract)
+
+    def clean_abstract_en(self):
+        """Inglizcha annotatsiyani XSS dan tozalash"""
+        abstract_en = self.cleaned_data.get('abstract_en', '')
+        return sanitize_abstract(abstract_en)
+
+    def clean_keywords(self):
+        """Kalit so'zlarni XSS dan tozalash"""
+        keywords = self.cleaned_data.get('keywords', '')
+        return sanitize_keywords(keywords)
+
+    def clean_keywords_en(self):
+        """Inglizcha kalit so'zlarni XSS dan tozalash"""
+        keywords_en = self.cleaned_data.get('keywords_en', '')
+        return sanitize_keywords(keywords_en)
+
 
 class AddAuthorForm(forms.ModelForm):
     class Meta:
@@ -214,6 +250,18 @@ class AddAuthorForm(forms.ModelForm):
         super(AddAuthorForm, self).__init__(*args, **kwargs)
         self.fields['scientific_degree'].empty_label = _("Tanlang")
 
+    def clean_fname(self):
+        return sanitize_plain_text(self.cleaned_data.get('fname', ''))
+
+    def clean_lname(self):
+        return sanitize_plain_text(self.cleaned_data.get('lname', ''))
+
+    def clean_mname(self):
+        return sanitize_plain_text(self.cleaned_data.get('mname', ''))
+
+    def clean_work(self):
+        return sanitize_plain_text(self.cleaned_data.get('work', ''))
+
 
 class SendMessageForm(forms.ModelForm):
     class Meta:
@@ -228,6 +276,9 @@ class SendMessageForm(forms.ModelForm):
                 'name': 'message',
             }),
         }
+
+    def clean_message(self):
+        return sanitize_plain_text(self.cleaned_data.get('message', ''))
 
 
 class CreateSectionForm(forms.ModelForm):

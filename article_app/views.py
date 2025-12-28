@@ -13,6 +13,7 @@ from django.views.decorators.csrf import requires_csrf_token
 from post.models import Post, BlankPage
 from user_app.decorators import allowed_users
 from article_app.forms import *
+from article_app.sanitizer import sanitize_title, sanitize_keywords, sanitize_abstract, contains_xss
 from user_app.models import User, Editor, Menu, ReviewerArticle
 from journal.models import *
 
@@ -591,6 +592,17 @@ def create_article(request):
         section = request.POST.get('section', None)
         title = request.POST.get('title', None)
 
+        # XSS tekshiruvi
+        if title and contains_xss(title):
+            return JsonResponse({
+                "result": False,
+                "message": _("Xavfsizlik xatosi: Noto'g'ri belgilar aniqlandi!"),
+            })
+
+        # Sarlavhani sanitizatsiya qilish
+        if title:
+            title = sanitize_title(title)
+
         form = CreateArticleForm(request.POST)
         if form.is_valid() and country and article_type and article_lang and section and title:
             article = form.save(commit=False)
@@ -658,18 +670,31 @@ def update_article(request, pk):
         if form.is_valid():
             files = ArticleFile.objects.filter(
                 article=article).filter(file_status=1)
-            title = str(request.POST.get('title')).replace(
-                '<p>', '').replace('</p>', '')
-            title_en = str(request.POST.get('title_en')).replace(
-                '<p>', '').replace('</p>', '')
-            abstrk = str(request.POST.get('abstract')).replace(
-                '<p>', '').replace('</p>', '')
-            abstrk_en = str(request.POST.get('abstract_en')).replace(
-                '<p>', '').replace('</p>', '')
-            keywords = str(request.POST.get('keywords')).replace(
-                '<p>', '').replace('</p>', '')
-            keywords_en = str(request.POST.get('keywords_en')).replace(
-                '<p>', '').replace('</p>', '')
+
+            # XSS tekshiruvi va sanitizatsiya
+            raw_title = request.POST.get('title', '')
+            raw_title_en = request.POST.get('title_en', '')
+            raw_abstract = request.POST.get('abstract', '')
+            raw_abstract_en = request.POST.get('abstract_en', '')
+            raw_keywords = request.POST.get('keywords', '')
+            raw_keywords_en = request.POST.get('keywords_en', '')
+
+            # XSS mavjudligini tekshirish
+            fields_to_check = [raw_title, raw_title_en, raw_abstract, raw_abstract_en, raw_keywords, raw_keywords_en]
+            for field in fields_to_check:
+                if contains_xss(field):
+                    return JsonResponse({
+                        'result': False,
+                        'message': _("Xavfsizlik xatosi: Noto'g'ri belgilar aniqlandi!"),
+                    })
+
+            # Sanitizatsiya qilish
+            title = sanitize_title(raw_title)
+            title_en = sanitize_title(raw_title_en)
+            abstrk = sanitize_abstract(raw_abstract)
+            abstrk_en = sanitize_abstract(raw_abstract_en)
+            keywords = sanitize_keywords(raw_keywords)
+            keywords_en = sanitize_keywords(raw_keywords_en)
 
             if len(abstrk) == 0 or len(
                     keywords) == 0 or len(title_en) == 0 or len(title) == 0 or len(abstrk_en) == 0 or len(
