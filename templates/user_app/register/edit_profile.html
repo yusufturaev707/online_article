@@ -294,6 +294,9 @@
             }
         }
 
+        // Global flag - takroriy yuborishni oldini olish
+        var isSubmittingReviewerForm = false;
+
         $(document).ready(function () {
             // Taqrizchi checkbox o'zgarishini kuzatish
             $('#role3').on('change', function () {
@@ -311,7 +314,7 @@
                 }
             });
 
-            // Ariza yuborish tugmasini bosish
+            // Ariza yuborish tugmasini bosish - modal ochish
             $('body').on('click', '#choose-role-reviewer-btn', function (e) {
                 e.preventDefault();
 
@@ -325,8 +328,19 @@
                     type: 'GET',
                     url: url,
                     success: function (response) {
+                        // Avvalgi modal elementlarini tozalash
+                        $('#choosen_reviewer_role_div').empty();
+                        $('.modal-backdrop').remove();
+                        $('body').removeClass('modal-open');
+
+                        // Yangi modal ni yuklash
                         $('#choosen_reviewer_role_div').html(response);
-                        $('#choosen_reviewerRole').modal({backdrop: 'static', keyboard: false}, 'show');
+
+                        // Flagni reset qilish
+                        isSubmittingReviewerForm = false;
+
+                        // Modalni ochish
+                        $('#choosen_reviewerRole').modal('show');
                     },
                     error: function (error) {
                         console.log(error);
@@ -339,7 +353,108 @@
                     }
                 });
             });
+
+            // Taqrizchi formasini yuborish - FAQAT BIR MARTA
+            $(document).off('submit', '#choosen_reviewerRole_form').on('submit', '#choosen_reviewerRole_form', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                // Takroriy yuborishni tekshirish
+                if (isSubmittingReviewerForm) {
+                    console.log('Form already submitting, ignoring...');
+                    return false;
+                }
+
+                // Flagni o'rnatish
+                isSubmittingReviewerForm = true;
+
+                let form = $(this);
+                let url = form.data('url');
+                let formData = new FormData(this);
+                let submitBtn = $('#submitReviewerFormBtn');
+
+                // Tugmani o'chirish va spinner ko'rsatish
+                submitBtn.prop('disabled', true);
+                $('#submitBtnText').hide();
+                $('#submitBtnSpinner').show();
+
+                $.ajax({
+                    type: 'POST',
+                    url: url,
+                    data: formData,
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        // Modal ni to'liq yopish
+                        closeReviewerModal();
+
+                        if (response.result) {
+                            swal({
+                                title: "Muvaffaqiyat!",
+                                text: response.message,
+                                icon: "success",
+                                timer: 2500
+                            }).then(function() {
+                                window.location.reload();
+                            });
+                        } else {
+                            // Xatolik - flagni reset qilish
+                            isSubmittingReviewerForm = false;
+                            submitBtn.prop('disabled', false);
+                            $('#submitBtnText').show();
+                            $('#submitBtnSpinner').hide();
+
+                            swal({
+                                title: "Xatolik!",
+                                text: response.message,
+                                icon: "error",
+                                timer: 4000
+                            });
+                        }
+                    },
+                    error: function (error) {
+                        console.log(error);
+                        // Modal ni yopish
+                        closeReviewerModal();
+
+                        // Flagni reset qilish
+                        isSubmittingReviewerForm = false;
+
+                        swal({
+                            title: "Xatolik!",
+                            text: "So'rovni yuborishda xatolik yuz berdi",
+                            icon: "error",
+                            timer: 3000
+                        });
+                    }
+                });
+
+                return false;
+            });
+
+            // Modal yopilganda tozalash
+            $(document).on('hidden.bs.modal', '#choosen_reviewerRole', function () {
+                cleanupModal();
+            });
         });
+
+        // Modal ni to'liq yopish funksiyasi
+        function closeReviewerModal() {
+            $('#choosen_reviewerRole').modal('hide');
+            setTimeout(function() {
+                cleanupModal();
+            }, 300);
+        }
+
+        // Modal elementlarini tozalash
+        function cleanupModal() {
+            $('.modal-backdrop').remove();
+            $('body').removeClass('modal-open');
+            $('body').css('padding-right', '');
+            $('#choosen_reviewer_role_div').empty();
+            isSubmittingReviewerForm = false;
+        }
 
         // Shaxsiy ma'lumotlarni olish tugmasi
         $('body').on('click', '#btnRefreshData', function (e) {

@@ -886,14 +886,7 @@ def choose_roles(request):
     user = get_object_or_404(User, pk=request.user.id)
 
     if request.method == "POST" and is_ajax(request):
-        # 1. Foydalanuvchi allaqachon taqrizchi yoki so'rov yuborgan-yubormaganini tekshirish
-        if Reviewer.objects.filter(user=user).exists():
-            return JsonResponse({
-                "result": False,
-                "message": _("Siz allaqachon taqrizchi arizasi yuborgansiz!")
-            })
-
-        # 2. Foydalanuvchining taqrizchi rolini so'rash huquqi borligini tekshirish
+        # 1. Foydalanuvchining taqrizchi rolini so'rash huquqi borligini tekshirish
         allowed_roles = ['admin', 'author', 'reviewer', 'editor']
         user_role_codes = [role.code_name for role in user.roles.all()]
         if not any(role in user_role_codes for role in allowed_roles):
@@ -902,40 +895,40 @@ def choose_roles(request):
                 "message": _("Sizda taqrizchi rolini so'rash huquqi yo'q!")
             })
 
-        # 3. Shaxsiy ma'lumotlar to'liqligini tekshirish
+        # 2. Shaxsiy ma'lumotlar to'liqligini tekshirish
         if not user.is_full_personal_data:
             return JsonResponse({
                 "result": False,
                 "message": _("Shaxsiy ma'lumotlaringiz to'liq emas!")
             })
 
-        # 4. Ilmiy daraja mavjudligini tekshirish
+        # 3. Ilmiy daraja mavjudligini tekshirish
         if not user.sc_degree:
             return JsonResponse({
                 "result": False,
                 "message": _("Iltimos, ilmiy darajangizni kiriting!")
             })
 
-        # 5. Form ma'lumotlarini olish
+        # 4. Form ma'lumotlarini olish
         form = AddReviewerForm(request.POST)
         files = request.FILES.getlist('file')
         sections = request.POST.getlist('section')
 
-        # 6. Ruknlar tanlanganligini tekshirish
+        # 5. Ruknlar tanlanganligini tekshirish
         if len(sections) == 0:
             return JsonResponse({
                 "result": False,
                 "message": _("Iltimos, kamida bitta ruknni tanlang!")
             })
 
-        # 7. Fayl yuklanganligini tekshirish
+        # 6. Fayl yuklanganligini tekshirish
         if len(files) == 0:
             return JsonResponse({
                 "result": False,
                 "message": _("Iltimos, ilmiy ishlaringiz ro'yxatini yuklang!")
             })
 
-        # 8. Fayl validatsiyasi - OLDIN tekshirish
+        # 7. Fayl validatsiyasi - OLDIN tekshirish
         max_file_size = 10 * 1024 * 1024  # 10 MB
         allowed_extensions = ['doc', 'docx', 'pdf']
         validator = FileExtensionValidator(allowed_extensions=allowed_extensions)
@@ -957,7 +950,7 @@ def choose_roles(request):
                     "message": _("Fayl hajmi 10 MB dan oshmasligi kerak!")
                 })
 
-        # 9. Ruknlar mavjudligini tekshirish
+        # 8. Ruknlar mavjudligini tekshirish
         section_objects = []
         for section_id in sections:
             try:
@@ -969,7 +962,7 @@ def choose_roles(request):
                     "message": _("Noto'g'ri rukn tanlandi!")
                 })
 
-        # 10. Editor mavjudligini tekshirish
+        # 9. Editor mavjudligini tekshirish
         editor = Editor.objects.all().last()
         if not editor:
             return JsonResponse({
@@ -977,7 +970,7 @@ def choose_roles(request):
                 "message": _("Tizimda muharrir topilmadi. Iltimos, administrator bilan bog'laning!")
             })
 
-        # 11. Status mavjudligini tekshirish
+        # 10. Status mavjudligini tekshirish
         try:
             status = ReviewerEditorStatus.objects.get(pk=1)
         except ReviewerEditorStatus.DoesNotExist:
@@ -986,20 +979,30 @@ def choose_roles(request):
                 "message": _("Tizim xatosi: Status topilmadi!")
             })
 
-        # 12. Forma validatsiyasi va saqlash - transaction ichida
+        # 11. Forma validatsiyasi va saqlash
         if form.is_valid():
             try:
+                # BITTA transaction ichida - duplicate check VA yaratish
                 with transaction.atomic():
+                    # Race condition oldini olish - user ni qulflash
+                    locked_user = User.objects.select_for_update().get(pk=request.user.id)
+
+                    # Takroriy tekshirish - transaction ichida
+                    if Reviewer.objects.filter(user=locked_user).exists():
+                        return JsonResponse({
+                            "result": False,
+                            "message": _("Siz allaqachon taqrizchi arizasi yuborgansiz!")
+                        })
+
                     # Reviewer yaratish
-                    reviewer = form.save(commit=False)
-                    reviewer.scientific_degree = user.sc_degree
-                    reviewer.user = user
-                    reviewer.is_reviewer = False  # Tasdiqlanmaguncha False
-                    reviewer.save()
+                    reviewer = Reviewer.objects.create(
+                        user=locked_user,
+                        scientific_degree=locked_user.sc_degree,
+                        is_reviewer=False  # Tasdiqlanmaguncha False
+                    )
 
                     # Ruknlarni qo'shish
-                    for section in section_objects:
-                        reviewer.section.add(section)
+                    reviewer.section.set(section_objects)
 
                     # Fayllarni saqlash
                     for f in files:
@@ -1022,6 +1025,8 @@ def choose_roles(request):
 
             except Exception as e:
                 # Kutilmagan xatolik
+                import logging
+                logging.error(f"choose_roles error: {str(e)}")
                 return JsonResponse({
                     "result": False,
                     "message": _("Xatolik yuz berdi. Iltimos, qaytadan urinib ko'ring!")
