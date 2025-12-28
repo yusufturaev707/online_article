@@ -18,6 +18,7 @@ from fileapp.models import TemplateFile
 from journal.models import Journal
 from user_app.decorators import unauthenticated_user, allowed_users, orientation_user
 from django.db.models.query_utils import Q
+from django.db import transaction
 from user_app.forms import *
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.decorators import login_required
@@ -878,52 +879,163 @@ def register_page(request):
 
 @login_required(login_url='login')
 def choose_roles(request):
-    user = User.objects.get(pk=request.user.id)
+    """
+    Taqrizchi rolini so'rash funksiyasi.
+    Foydalanuvchi taqrizchi bo'lish uchun ariza yuboradi.
+    """
+    user = get_object_or_404(User, pk=request.user.id)
+
     if request.method == "POST" and is_ajax(request):
+        # 1. Foydalanuvchi allaqachon taqrizchi yoki so'rov yuborgan-yubormaganini tekshirish
+        if Reviewer.objects.filter(user=user).exists():
+            return JsonResponse({
+                "result": False,
+                "message": _("Siz allaqachon taqrizchi arizasi yuborgansiz!")
+            })
+
+        # 2. Foydalanuvchining taqrizchi rolini so'rash huquqi borligini tekshirish
+        allowed_roles = ['admin', 'author', 'reviewer', 'editor']
+        user_role_codes = [role.code_name for role in user.roles.all()]
+        if not any(role in user_role_codes for role in allowed_roles):
+            return JsonResponse({
+                "result": False,
+                "message": _("Sizda taqrizchi rolini so'rash huquqi yo'q!")
+            })
+
+        # 3. Shaxsiy ma'lumotlar to'liqligini tekshirish
+        if not user.is_full_personal_data:
+            return JsonResponse({
+                "result": False,
+                "message": _("Shaxsiy ma'lumotlaringiz to'liq emas!")
+            })
+
+        # 4. Ilmiy daraja mavjudligini tekshirish
+        if not user.sc_degree:
+            return JsonResponse({
+                "result": False,
+                "message": _("Iltimos, ilmiy darajangizni kiriting!")
+            })
+
+        # 5. Form ma'lumotlarini olish
         form = AddReviewerForm(request.POST)
         files = request.FILES.getlist('file')
         sections = request.POST.getlist('section')
-        editor = Editor.objects.all().last()
-        status = ReviewerEditorStatus.objects.get(pk=1)
 
-        if not user.is_full_personal_data:
-            return JsonResponse({"result": False, "message": _("Shaxsiy ma'lumotlariz to'liq emas!")})
+        # 6. Ruknlar tanlanganligini tekshirish
         if len(sections) == 0:
-            return JsonResponse({"result": False, "message": _("Ruknni yarating!")})
+            return JsonResponse({
+                "result": False,
+                "message": _("Iltimos, kamida bitta ruknni tanlang!")
+            })
+
+        # 7. Fayl yuklanganligini tekshirish
         if len(files) == 0:
-            return JsonResponse({"result": False, "message": _("Iltimos faylni yuklang!")})
+            return JsonResponse({
+                "result": False,
+                "message": _("Iltimos, ilmiy ishlaringiz ro'yxatini yuklang!")
+            })
 
-        if form.is_valid():
-            reviewer = form.save(commit=False)
-            reviewer.scientific_degree_id = user.sc_degree.id
-            reviewer.save()
+        # 8. Fayl validatsiyasi - OLDIN tekshirish
+        max_file_size = 10 * 1024 * 1024  # 10 MB
+        allowed_extensions = ['doc', 'docx', 'pdf']
+        validator = FileExtensionValidator(allowed_extensions=allowed_extensions)
 
-            for section_id in sections:
+        for f in files:
+            # Fayl kengaytmasini tekshirish
+            try:
+                validator(f)
+            except ValidationError:
+                return JsonResponse({
+                    "result": False,
+                    "message": _("Faqat .doc, .docx yoki .pdf fayllarga ruxsat beriladi!")
+                })
+
+            # Fayl hajmini tekshirish
+            if f.size > max_file_size:
+                return JsonResponse({
+                    "result": False,
+                    "message": _("Fayl hajmi 10 MB dan oshmasligi kerak!")
+                })
+
+        # 9. Ruknlar mavjudligini tekshirish
+        section_objects = []
+        for section_id in sections:
+            try:
                 section = Section.objects.get(pk=int(section_id))
-                reviewer.section.add(section)
+                section_objects.append(section)
+            except (Section.DoesNotExist, ValueError):
+                return JsonResponse({
+                    "result": False,
+                    "message": _("Noto'g'ri rukn tanlandi!")
+                })
 
-            for f in files:
-                validator = FileExtensionValidator(allowed_extensions=['doc', 'docx', 'pdf'])
-                try:
-                    validator(f)
-                except ValidationError:
-                    return JsonResponse(
-                        {"result": False, "message": _("Faqat .doc, .docx yoki .pdf fayllarga ruxsat beriladi!")})
+        # 10. Editor mavjudligini tekshirish
+        editor = Editor.objects.all().last()
+        if not editor:
+            return JsonResponse({
+                "result": False,
+                "message": _("Tizimda muharrir topilmadi. Iltimos, administrator bilan bog'laning!")
+            })
 
-                ReviewerFile.objects.create(
-                    reviewer=reviewer,
-                    file=f
-                )
+        # 11. Status mavjudligini tekshirish
+        try:
+            status = ReviewerEditorStatus.objects.get(pk=1)
+        except ReviewerEditorStatus.DoesNotExist:
+            return JsonResponse({
+                "result": False,
+                "message": _("Tizim xatosi: Status topilmadi!")
+            })
 
-            ReviewerEditor.objects.create(
-                reviewer=reviewer,
-                editor=editor,
-                status=status,
-            )
+        # 12. Forma validatsiyasi va saqlash - transaction ichida
+        if form.is_valid():
+            try:
+                with transaction.atomic():
+                    # Reviewer yaratish
+                    reviewer = form.save(commit=False)
+                    reviewer.scientific_degree = user.sc_degree
+                    reviewer.user = user
+                    reviewer.is_reviewer = False  # Tasdiqlanmaguncha False
+                    reviewer.save()
 
-            return JsonResponse({"result": True, "message": _("Muvaffaqiyatli yuborildi!")})
+                    # Ruknlarni qo'shish
+                    for section in section_objects:
+                        reviewer.section.add(section)
+
+                    # Fayllarni saqlash
+                    for f in files:
+                        ReviewerFile.objects.create(
+                            reviewer=reviewer,
+                            file=f
+                        )
+
+                    # Editor bilan bog'lash
+                    ReviewerEditor.objects.create(
+                        reviewer=reviewer,
+                        editor=editor,
+                        status=status,
+                    )
+
+                return JsonResponse({
+                    "result": True,
+                    "message": _("Arizangiz muvaffaqiyatli yuborildi! Natija tez orada ma'lum qilinadi.")
+                })
+
+            except Exception as e:
+                # Kutilmagan xatolik
+                return JsonResponse({
+                    "result": False,
+                    "message": _("Xatolik yuz berdi. Iltimos, qaytadan urinib ko'ring!")
+                })
         else:
-            return JsonResponse({"result": False, "message": _("Forma to'liq emas!")})
+            # Form xatoliklari
+            errors = []
+            for field, error_list in form.errors.items():
+                for error in error_list:
+                    errors.append(f"{field}: {error}")
+            error_message = "; ".join(errors) if errors else _("Forma to'liq emas!")
+            return JsonResponse({"result": False, "message": error_message})
+
+    # GET so'rov - formani ko'rsatish
     context = {
         'user': user,
         'form': AddReviewerForm(),
