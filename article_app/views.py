@@ -578,7 +578,7 @@ def delete_notification_status(request, pk):
 @allowed_users(role=['admin', 'editor', 'reviewer', 'author'])
 def create_article(request):
     user = User.objects.get(pk=request.user.id)
-    if user.birthday is None or user.region is None or user.gender is None or user.phone is None or user.pser is None or user.pnum is None or user.work is None:
+    if user.is_get_ps_data and user.is_full_personal_data:
         data = {
             "result": False,
             "message": _("Shaxsiy ma'lumotlarizni to'ldiring!"),
@@ -615,8 +615,8 @@ def create_article(request):
                     article=article,
                     lname=article.author.last_name,
                     fname=article.author.first_name,
-                    mname=article.author.middle_name,
-                    email=article.author.email,
+                    mname=article.author.middle_name if user.middle_name else '',
+                    email=article.author.email if user.email else '',
                     work=article.author.work,
                 )
                 lang = get_language()
@@ -639,9 +639,9 @@ def create_article(request):
         except Exception as e:
             data = {
                 "result": False,
-                "message": f"{e}",
+                "message": f"Xatolik: {e}",
             }
-            return JsonResponse(data=data, status=500)
+            return JsonResponse(data=data)
     else:
         context = {
             'form': CreateArticleForm(),
