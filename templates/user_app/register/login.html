@@ -80,7 +80,7 @@
                 </label>
                 <div class="flex items-center gap-3">
                     <div class="flex-shrink-0 bg-white border-2 border-gray-200 rounded-xl p-2 flex items-center gap-2">
-                        {{ form.captcha.0 }}
+                        <input type="hidden" name="captcha_0" id="id_captcha_0" value="" />
                         <img src="" alt="captcha" class="captcha-image h-10 rounded-lg" />
                         <button type="button" onclick="refreshCaptcha()" class="p-2 hover:bg-gray-100 rounded-lg transition-colors" title="{% trans 'Yangilash' %}">
                             <span class="material-icons-outlined text-blue-500">refresh</span>
