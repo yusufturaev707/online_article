@@ -581,7 +581,7 @@ def delete_notification_status(request, pk):
 def create_article(request):
     user = User.objects.get(pk=request.user.id)
     if not user.is_get_ps_data or not user.is_full_personal_data:
-        raise ValidationError(_("Shaxsiy ma'lumotlarizni to'ldiring!"))
+        return HttpResponse("Shaxsiy ma'lumotlaringiz to'liq emas!")
 
     if request.method == "POST" and is_ajax(request):
         try:
