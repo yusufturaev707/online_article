@@ -102,12 +102,16 @@ class User(AbstractUser):
         if (self.birthday is None or self.gender is None or self.phone is None or self.pser is None or self.pnum is None
                 or self.work is None or self.jshshr is None or self.sc_degree is None):
             is_person = False
+        if self.jshshr == '' or self.work == '' or self.sc_degree_id == '' or self.pser == '' or self.pnum == '':
+            is_person = False
         return is_person
 
     @property
     def is_get_ps_data(self):
         is_person = True
         if self.birthday is None or self.gender is None or self.pser is None or self.pnum is None or self.jshshr is None or self.last_name is None or self.first_name is None or self.middle_name is None:
+            is_person = False
+        if self.jshshr == '' or self.work == '' or self.sc_degree_id == '' or self.pser == '' or self.pnum == '' or self.last_name is None or self.first_name is None or self.middle_name is None:
             is_person = False
         return is_person
 

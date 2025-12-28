@@ -637,7 +637,6 @@ def create_article(request):
             }
             return JsonResponse(data=data)
     else:
-        print(is_full_data)
         context = {
             'form': CreateArticleForm(),
             "is_data_full": is_full_data,
