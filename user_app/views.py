@@ -700,25 +700,31 @@ def login_page(request):
                 "message": _("Juda ko'p muvaffaqiyatsiz urinish. {} daqiqadan keyin qayta urinib ko'ring.").format(LOCKOUT_MINUTES)
             })
 
-        # CAPTCHA tekshiruvi (3 ta muvaffaqiyatsiz urinishdan keyin)
-        if failed_attempts >= 3:
-            input_value = request.POST.get('captcha_1', '')
-            hash_key = request.POST.get('captcha_0', '')
+        # CAPTCHA tekshiruvi - har doim talab qilinadi
+        input_value = request.POST.get('captcha_1', '')
+        hash_key = request.POST.get('captcha_0', '')
 
-            if not CaptchaStore.objects.filter(hashkey=hash_key).exists():
-                return JsonResponse({
-                    "success": False,
-                    "is_captcha": True,
-                    "message": _("Captchani yangilab, qayta kiriting!")
-                })
+        if not hash_key or not CaptchaStore.objects.filter(hashkey=hash_key).exists():
+            return JsonResponse({
+                "success": False,
+                "is_captcha": True,
+                "message": _("Captchani yangilab, qayta kiriting!")
+            })
 
-            ob_captcha = get_object_or_404(CaptchaStore, hashkey=hash_key)
-            if not input_value or input_value != ob_captcha.response:
-                return JsonResponse({
-                    "success": False,
-                    "is_captcha": True,
-                    "message": _("Tekshiruv kodi noto'g'ri!")
-                })
+        ob_captcha = get_object_or_404(CaptchaStore, hashkey=hash_key)
+        if not input_value:
+            return JsonResponse({
+                "success": False,
+                "is_captcha": True,
+                "message": _("Tekshiruv kodini kiriting!")
+            })
+
+        if input_value != ob_captcha.response:
+            return JsonResponse({
+                "success": False,
+                "is_captcha": True,
+                "message": _("Tekshiruv kodi noto'g'ri!")
+            })
 
         # Foydalanuvchi mavjudligini tekshirish (is_blocked uchun)
         try:
@@ -751,7 +757,7 @@ def login_page(request):
             if remaining_attempts > 0:
                 return JsonResponse({
                     "success": False,
-                    "is_captcha": failed_attempts >= 2,  # Keyingi urinishda captcha ko'rsatish
+                    "is_captcha": True,
                     "message": _("Login yoki parol noto'g'ri! {} ta urinish qoldi.").format(remaining_attempts)
                 })
             else:
