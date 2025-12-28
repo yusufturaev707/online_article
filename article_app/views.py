@@ -579,70 +579,76 @@ def delete_notification_status(request, pk):
 @login_required(login_url='login')
 @allowed_users(role=['admin', 'editor', 'reviewer', 'author'])
 def create_article(request):
-    user = User.objects.get(pk=request.user.id)
-    if not user.is_get_ps_data or not user.is_full_personal_data:
-        return HttpResponse("Shaxsiy ma'lumotlaringiz to'liq emas!")
+    is_full_data = True
+    try:
+        user = User.objects.get(pk=request.user.id)
+        if not user.is_get_ps_data or not user.is_full_personal_data:
+            is_full_data = False
 
-    if request.method == "POST" and is_ajax(request):
-        try:
-            country = request.POST.get('country', None)
-            article_type = request.POST.get('article_type', None)
-            article_lang = request.POST.get('article_lang', None)
-            section = request.POST.get('section', None)
-            title = request.POST.get('title', None)
+        if request.method == "POST" and is_ajax(request):
+            try:
+                country = request.POST.get('country', None)
+                article_type = request.POST.get('article_type', None)
+                article_lang = request.POST.get('article_lang', None)
+                section = request.POST.get('section', None)
+                title = request.POST.get('title', None)
 
-            # XSS tekshiruvi
-            if title and contains_xss(title):
-                return JsonResponse({
-                    "result": False,
-                    "message": _("Xavfsizlik xatosi: Noto'g'ri belgilar aniqlandi!"),
-                })
+                # XSS tekshiruvi
+                if title and contains_xss(title):
+                    return JsonResponse({
+                        "result": False,
+                        "message": _("Xavfsizlik xatosi: Noto'g'ri belgilar aniqlandi!"),
+                    })
 
-            # Sarlavhani sanitizatsiya qilish
-            if title:
-                title = sanitize_title(title)
+                # Sarlavhani sanitizatsiya qilish
+                if title:
+                    title = sanitize_title(title)
 
-            form = CreateArticleForm(request.POST)
-            if form.is_valid() and country and article_type and article_lang and section and title:
-                article = form.save(commit=False)
-                article.author = user
-                article.article_status_id = 6
-                article.save()
+                form = CreateArticleForm(request.POST)
+                if form.is_valid() and country and article_type and article_lang and section and title:
+                    article = form.save(commit=False)
+                    article.author = user
+                    article.article_status_id = 6
+                    article.save()
 
-                ExtraAuthor.objects.create(
-                    article=article,
-                    lname=article.author.last_name,
-                    fname=article.author.first_name,
-                    mname=article.author.middle_name if user.middle_name else '',
-                    email=article.author.email if user.email else '',
-                    work=article.author.work,
-                )
-                lang = get_language()
-
-                url = f"/{lang}/article/edit/{article.id}/"
-                if lang == 'uz':
-                    url = f"/article/edit/{article.id}/"
+                    ExtraAuthor.objects.create(
+                        article=article,
+                        lname=user.last_name,
+                        fname=user.first_name,
+                        mname=user.middle_name or '',
+                        email=user.email or '',
+                        work=user.work or '',
+                    )
+                    url = reverse('update_article', kwargs={'pk': article.id})
+                    data = {
+                        "result": True,
+                        "message": "Ok!",
+                        "url": url,
+                    }
+                    return JsonResponse(data=data)
+                else:
+                    data = {
+                        "result": False,
+                        "message": _("Forma to'ldirishda xatolik yuz berdi!"),
+                    }
+                    return JsonResponse(data=data)
+            except Exception as e:
                 data = {
-                    "result": True,
-                    "message": "Ok!",
-                    "url": url,
+                    "result": False,
+                    "message": f"Xatolik: {e}",
                 }
                 return JsonResponse(data=data)
-            else:
-                data = {
-                    "result": False,
-                    "message": _("Forma to'ldirishda xatolik yuz berdi!"),
-                }
-                return JsonResponse(data=data)
-        except Exception as e:
-            data = {
-                "result": False,
-                "message": f"Xatolik: {e}",
+        else:
+            context = {
+                'form': CreateArticleForm(),
+                "is_data_full": is_full_data,
             }
-            return JsonResponse(data=data)
-    else:
+            return render(request, "article_app/crud/create_article.html", context=context)
+    except ValidationError:
         context = {
             'form': CreateArticleForm(),
+            "is_data_full": is_full_data,
+            "message": _("Shaxsiy ma'lumotlaringiz to'liq emas!")
         }
         return render(request, "article_app/crud/create_article.html", context=context)
 

@@ -11,6 +11,7 @@
                     <h5 class="modal-title">{% trans "Maqola qo'shish" %}</h5>
                     <a href="#" class="close" data-dismiss="modal">&times;</a>
                 </div>
+                {% if is_data_full %}
                 <div class="modal-body">
                     <div class="form-group row m-b-15">
                         <label class="col-md-3 col-sm-3 col-form-label">{% trans "Mamlakat" %} <span
@@ -53,6 +54,11 @@
                     <button type="submit" class="btn btn-primary forshadow"
                             id="my_article">{% trans "Saqlash" %}</button>
                 </div>
+                    {% else %}
+                    <div class="text-danger">
+                    {{ message }}
+                    </div>
+                {% endif %}
             </div>
         </div>
     </div>
