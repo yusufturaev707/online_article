@@ -344,11 +344,11 @@
 
         if (!username || username.length < 5) {
             errorDiv.removeClass('hidden');
-            errorDiv.find('.error-text').text("{% trans 'Foydalanuvchi nomi kamida 5 ta belgidan iborat bo\\'lishi kerak!' %}");
+            errorDiv.find('.error-text').text("{% trans "Foydalanuvchi nomi kamida 5 ta belgidan iborat bo\\'lishi kerak!" %}");
             hasError = true;
         } else if (!password1 || password1.length < 8) {
             errorDiv.removeClass('hidden');
-            errorDiv.find('.error-text').text("{% trans 'Parol kamida 8 ta belgidan iborat bo\\'lishi kerak!' %}");
+            errorDiv.find('.error-text').text("{% trans "Parol kamida 8 ta belgidan iborat bo\\'lishi kerak!" %}");
             hasError = true;
         } else if (password1 !== password2) {
             errorDiv.removeClass('hidden');
@@ -395,7 +395,7 @@
                     successDiv.addClass('hidden');
 
                     btn.prop('disabled', false);
-                    btnText.text("{% trans 'Ro\\'yxatdan o\\'tish' %}");
+                    btnText.text("{% trans "Ro'yxatdan o'tish" %}");
                     spinner.addClass('hidden');
                     btnIcon.removeClass('hidden').text('arrow_forward');
 
@@ -409,7 +409,7 @@
                 errorDiv.find('.error-text').text("{% trans 'Server xatosi yuz berdi' %}");
 
                 btn.prop('disabled', false);
-                btnText.text("{% trans 'Ro\\'yxatdan o\\'tish' %}");
+                btnText.text("{% trans "Ro'yxatdan o'tish" %}");
                 spinner.addClass('hidden');
                 btnIcon.removeClass('hidden').text('arrow_forward');
             }
