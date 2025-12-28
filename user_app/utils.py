@@ -63,3 +63,13 @@ def clean_password1(password1):
 
 def generate_token():
     return secrets.token_hex(16)
+
+
+def get_client_ip(request):
+    """Foydalanuvchi IP manzilini olish"""
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0].strip()
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip

@@ -267,6 +267,54 @@ class ReviewerArticle(models.Model):
     is_resubmit_reviewer = models.BooleanField(default=False)
 
 
+class LoginAttempt(models.Model):
+    """Login urinishlarini kuzatish - brute force himoyasi"""
+    ip_address = models.GenericIPAddressField()
+    username = models.CharField(max_length=100)
+    attempted_at = models.DateTimeField(auto_now_add=True)
+    was_successful = models.BooleanField(default=False)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['ip_address', 'attempted_at']),
+            models.Index(fields=['username', 'attempted_at']),
+        ]
+
+    @classmethod
+    def get_failed_attempts(cls, ip_address, username, minutes=15):
+        """Oxirgi X daqiqadagi muvaffaqiyatsiz urinishlar soni"""
+        from django.utils import timezone
+        from datetime import timedelta
+        time_threshold = timezone.now() - timedelta(minutes=minutes)
+        return cls.objects.filter(
+            ip_address=ip_address,
+            username=username,
+            was_successful=False,
+            attempted_at__gte=time_threshold
+        ).count()
+
+    @classmethod
+    def record_attempt(cls, ip_address, username, was_successful=False):
+        """Login urinishini yozib qo'yish"""
+        return cls.objects.create(
+            ip_address=ip_address,
+            username=username,
+            was_successful=was_successful
+        )
+
+    @classmethod
+    def clear_attempts(cls, ip_address, username):
+        """Muvaffaqiyatli logindan keyin urinishlarni tozalash"""
+        from django.utils import timezone
+        from datetime import timedelta
+        time_threshold = timezone.now() - timedelta(minutes=15)
+        cls.objects.filter(
+            ip_address=ip_address,
+            username=username,
+            attempted_at__gte=time_threshold
+        ).delete()
+
+
 class Menu(models.Model):
     name = models.CharField(max_length=100)
     icon_name = models.CharField(max_length=255, null=True, blank=True)

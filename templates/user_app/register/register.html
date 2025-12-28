@@ -1,207 +1,431 @@
-{% extends 'user_app/base.html' %}
+{% extends 'user_app/register/auth_base.html' %}
 {% load i18n %}
 {% load static %}
-{% block title %}
-    {% trans "Ro'yxatdan o'tish" %}
-{% endblock %}
-{% block base_content %}
-    <div id="page-container" class="fade reg_div">
-        <div class="login login-v1">
-            <div class="login-container">
-                <div class="login-header">
-                    <div class="brand">
-                        <b>{% trans "Ro‘yxatdan o‘tish" %}</b>
-                    </div>
+
+{% block title %}{% trans "Ro'yxatdan o'tish" %}{% endblock %}
+
+{% block auth_content %}
+<div class="w-full max-w-lg animate-fade-in">
+    <!-- Logo & Header -->
+    <div class="text-center mb-8">
+        <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl shadow-xl mb-6 animate-float">
+            <span class="material-icons-outlined text-white text-4xl">person_add</span>
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">
+            {% trans "Ro'yxatdan o'tish" %}
+        </h1>
+        <p class="text-gray-500">
+            {% trans "Bilimni baholash agentligi" %}
+        </p>
+    </div>
+
+    <!-- Register Card -->
+    <div class="glass-card rounded-3xl shadow-2xl p-8 sm:p-10 animate-slide-up">
+        <form method="POST" class="registerForm space-y-5" data-url="{% url 'register' %}">
+            {% csrf_token %}
+
+            <!-- Username Field -->
+            <div class="input-wrapper">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    <span class="flex items-center gap-2">
+                        <span class="material-icons-outlined text-lg text-gray-400">person</span>
+                        {% trans "Foydalanuvchi nomi" %}
+                    </span>
+                </label>
+                <input type="text"
+                       name="username"
+                       class="username input-field w-full px-4 py-3.5 bg-gray-50 border-2 border-gray-200 rounded-xl focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20 outline-none transition-all"
+                       placeholder="{% trans 'Kamida 5 ta belgi' %}"
+                       autocomplete="username"
+                       required />
+                <p class="text-gray-500 text-xs mt-1.5 flex items-center gap-1">
+                    <span class="material-icons-outlined text-xs">info</span>
+                    {% trans "Foydalanuvchi nomingiz 5 ta belgidan kam bo'lmasligi kerak" %}
+                </p>
+                <p class="error-message hidden text-red-500 text-sm mt-1 flex items-center gap-1">
+                    <span class="material-icons-outlined text-sm">error</span>
+                    <span></span>
+                </p>
+            </div>
+
+            <!-- Password Field -->
+            <div class="input-wrapper">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    <span class="flex items-center gap-2">
+                        <span class="material-icons-outlined text-lg text-gray-400">lock</span>
+                        {% trans "Parol" %}
+                    </span>
+                </label>
+                <div class="relative">
+                    <input type="password"
+                           name="password1"
+                           id="password1"
+                           class="password1 input-field w-full px-4 py-3.5 pr-12 bg-gray-50 border-2 border-gray-200 rounded-xl focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20 outline-none transition-all"
+                           placeholder="{% trans 'Kamida 8 ta belgi' %}"
+                           autocomplete="new-password"
+                           required />
+                    <button type="button" onclick="togglePassword('password1', this)" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
+                        <span class="material-icons-outlined">visibility_off</span>
+                    </button>
                 </div>
-                <div class="login-body">
-                    <div class="login-content">
-                        <form data-url="{% url 'register' %}" method="POST" class="margin-bottom-0 registerForm">
-                            {% csrf_token %}
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group m-b-20 reg_page">
-                                        <input type="text" name="username"
-                                               class="form-control form-control-xs inverse-mode username forshadow"
-                                               placeholder="{% trans 'Foydalanuvchi nomi' %}"/>
-                                        <div class="form-text">{% trans "Foydalanuvchi nomingiz 5 ta belgidan kam bo'lmasligi kerak!" %}</div>
-                                    </div>
-                                </div>
-                                <div class="col-md-12">
-                                    <div class="form-group m-b-20 reg_page">
-                                        <input type="password" name="password1"
-                                               class="form-control form-control-xs inverse-mode password1 forshadow"
-                                               placeholder="{% trans 'Parol' %}"/>
-                                    </div>
-                                </div>
-                                <div class="col-md-12">
-                                    <div class="form-group m-b-20 reg_page">
-                                        <input type="password" name="password2"
-                                               class="form-control form-control-xs inverse-mode password2 forshadow"
-                                               placeholder="{% trans 'Parolni takror kiriting' %}"
-                                               aria-describedby="passwordInfo"/>
-                                        <div id="passwordInfo"
-                                             class="form-text">{% trans "Parol kamida 8 ta belgidan va bunda lotin alifbosida kamida 1 ta bosh, kichik va 1ta maxsus(!@#$) belgilardan iborat bo'lsin." %}</div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-12">
-                                    <div class="form-group m-b-20 reg_page">
-                                        <select class="form-control form-control-xs inverse-mode forshadow"
-                                                name="chosen_role" id="id_chosen_role">
-                                            <option value="" style="color: #c5c5c5">{% trans "Rol tanlang" %}</option>
-                                            {% if roles.count > 0 %}
-                                                {% for role in roles %}
-                                                    <option value="{{ role.id }}">{{ role.name }}</option>
-                                                {% endfor %}
-                                            {% endif %}
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form-group m-b-20 reg_page">
-                                {{ form.captcha.errors }}
-                                <i class="icon-refresh captcha forshadow"
-                                   style="color: #246dea; font-size: large; font-weight: bold"></i>
-                                {{ form.captcha }}
-                                <input type="hidden" name="next" value="{{ next }}">
-                            </div>
-                            <div class="form-check mb-2 mr-sm-2">
-                                <input class="form-check-input" type="checkbox" id="Offer" name="offer">
-                                <label class="form-check-label"
-                                       for="Offer">{% trans "Ommaviy oferta shartlariga rozimisiz?" %}</label>
-                            </div>
-                            <div class="login-buttons">
-                                <button type="submit"
-                                        class="UserModal btn btn-primary btn-block btn-md registerBtn forshadow"
-                                        disabled>{% trans "Ro'yxatdan o'tish" %}</button>
-                            </div>
-                            <div class="m-t-30 m-b-30 p-b-30">
-                                {% trans "Siz oldin ro'yxatdan o'tgan bo'lsangiz." %}
-                                <a href="{% url 'login' %}">{% trans "Kirish" %}</a>
-                            </div>
-                            <div class="row d-flex justify-content-center" id="registerFormError"></div>
-                            <hr/>
-                            <p class="text-center mb-0">
-                                &copy; Bilimni baholash agentligi
-                            </p>
-                        </form>
+                <!-- Password Strength Indicator -->
+                <div class="mt-2">
+                    <div class="flex gap-1 mb-1">
+                        <div class="h-1 flex-1 rounded-full bg-gray-200 password-strength-bar"></div>
+                        <div class="h-1 flex-1 rounded-full bg-gray-200 password-strength-bar"></div>
+                        <div class="h-1 flex-1 rounded-full bg-gray-200 password-strength-bar"></div>
+                        <div class="h-1 flex-1 rounded-full bg-gray-200 password-strength-bar"></div>
                     </div>
+                    <p class="password-strength-text text-xs text-gray-500"></p>
                 </div>
             </div>
+
+            <!-- Confirm Password Field -->
+            <div class="input-wrapper">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    <span class="flex items-center gap-2">
+                        <span class="material-icons-outlined text-lg text-gray-400">lock_reset</span>
+                        {% trans "Parolni takrorlang" %}
+                    </span>
+                </label>
+                <div class="relative">
+                    <input type="password"
+                           name="password2"
+                           id="password2"
+                           class="password2 input-field w-full px-4 py-3.5 pr-12 bg-gray-50 border-2 border-gray-200 rounded-xl focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20 outline-none transition-all"
+                           placeholder="{% trans 'Parolni qayta kiriting' %}"
+                           autocomplete="new-password"
+                           required />
+                    <button type="button" onclick="togglePassword('password2', this)" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
+                        <span class="material-icons-outlined">visibility_off</span>
+                    </button>
+                </div>
+                <p class="password-match-text hidden text-sm mt-1 flex items-center gap-1"></p>
+            </div>
+
+            <!-- Role Selection -->
+            <div class="input-wrapper">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    <span class="flex items-center gap-2">
+                        <span class="material-icons-outlined text-lg text-gray-400">badge</span>
+                        {% trans "Rol tanlang" %}
+                    </span>
+                </label>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {% for role in roles %}
+                    <label class="role-option relative cursor-pointer">
+                        <input type="radio" name="chosen_role" value="{{ role.id }}" class="sr-only peer" required />
+                        <div class="p-4 bg-gray-50 border-2 border-gray-200 rounded-xl peer-checked:border-emerald-500 peer-checked:bg-emerald-50 hover:border-gray-300 transition-all">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center">
+                                    <span class="material-icons-outlined text-white text-xl">
+                                        {% if role.code_name == 'author' %}edit_note{% else %}quiz{% endif %}
+                                    </span>
+                                </div>
+                                <div>
+                                    <p class="font-semibold text-gray-800">{{ role.name }}</p>
+                                    <p class="text-xs text-gray-500">
+                                        {% if role.code_name == 'author' %}
+                                        {% trans "Maqola yozish" %}
+                                        {% else %}
+                                        {% trans "Test yuborish" %}
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="absolute top-3 right-3 w-5 h-5 rounded-full border-2 border-gray-300 peer-checked:border-emerald-500 peer-checked:bg-emerald-500 flex items-center justify-center transition-all">
+                            <span class="material-icons-outlined text-white text-sm hidden peer-checked:block">check</span>
+                        </div>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Captcha Field -->
+            <div class="input-wrapper">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    <span class="flex items-center gap-2">
+                        <span class="material-icons-outlined text-lg text-gray-400">calculate</span>
+                        {% trans "Tekshiruv kodi" %}
+                    </span>
+                </label>
+                <div class="flex items-center gap-3">
+                    <div class="flex-shrink-0 bg-white border-2 border-gray-200 rounded-xl p-2 flex items-center gap-2">
+                        {{ form.captcha.0 }}
+                        <img src="" alt="captcha" class="captcha-image h-10 rounded-lg" />
+                        <button type="button" onclick="refreshCaptcha()" class="p-2 hover:bg-gray-100 rounded-lg transition-colors" title="{% trans 'Yangilash' %}">
+                            <span class="material-icons-outlined text-emerald-500">refresh</span>
+                        </button>
+                    </div>
+                    <input type="text"
+                           name="captcha_1"
+                           id="id_captcha_1"
+                           class="captcha-input input-field flex-1 px-4 py-3.5 bg-gray-50 border-2 border-gray-200 rounded-xl focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20 outline-none transition-all font-mono text-lg"
+                           placeholder="= ?"
+                           maxlength="10"
+                           autocomplete="off"
+                           required />
+                </div>
+            </div>
+
+            <!-- Terms Agreement -->
+            <div class="input-wrapper">
+                <label class="flex items-start gap-3 cursor-pointer group">
+                    <div class="relative mt-0.5">
+                        <input type="checkbox" name="offer" id="offerCheckbox" class="sr-only peer" />
+                        <div class="w-5 h-5 border-2 border-gray-300 rounded peer-checked:border-emerald-500 peer-checked:bg-emerald-500 transition-all group-hover:border-gray-400">
+                            <span class="material-icons-outlined text-white text-sm absolute top-0.5 left-0.5 opacity-0 peer-checked:opacity-100">check</span>
+                        </div>
+                    </div>
+                    <span class="text-sm text-gray-600">
+                        {% trans "Ommaviy oferta shartlariga roziman" %}
+                        <a href="#" class="text-emerald-600 hover:underline">{% trans "(Batafsil)" %}</a>
+                    </span>
+                </label>
+            </div>
+
+            <!-- Error Message Area -->
+            <div id="registerFormError" class="hidden">
+                <div class="bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3">
+                    <span class="material-icons-outlined text-red-500 flex-shrink-0">error</span>
+                    <p class="text-red-700 text-sm error-text"></p>
+                </div>
+            </div>
+
+            <!-- Success Message Area -->
+            <div id="registerFormSuccess" class="hidden">
+                <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex items-start gap-3">
+                    <span class="material-icons-outlined text-emerald-500 flex-shrink-0">check_circle</span>
+                    <p class="text-emerald-700 text-sm success-text"></p>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" id="registerBtn" disabled class="w-full py-4 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold rounded-xl shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
+                <span class="btn-text">{% trans "Ro'yxatdan o'tish" %}</span>
+                <span class="material-icons-outlined btn-icon">arrow_forward</span>
+                <div class="spinner hidden"></div>
+            </button>
+        </form>
+
+        <!-- Divider -->
+        <div class="relative my-8">
+            <div class="absolute inset-0 flex items-center">
+                <div class="w-full border-t border-gray-200"></div>
+            </div>
+            <div class="relative flex justify-center text-sm">
+                <span class="px-4 bg-white text-gray-500">{% trans "yoki" %}</span>
+            </div>
         </div>
-        <a href="javascript:;" class="btn btn-icon btn-circle btn-success btn-scroll-to-top fade"
-           data-click="scroll-top"><i class="fa fa-angle-up"></i></a>
+
+        <!-- Login Link -->
+        <div class="text-center">
+            <p class="text-gray-600 mb-4">
+                {% trans "Allaqachon ro'yxatdan o'tganmisiz?" %}
+            </p>
+            <a href="{% url 'login' %}" class="inline-flex items-center gap-2 px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-all hover:shadow-md">
+                <span class="material-icons-outlined">login</span>
+                {% trans "Tizimga kirish" %}
+            </a>
+        </div>
     </div>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script type="text/javascript">
 
-        $('#Offer').change(function () {
-            let is_checked = $(this).is(':checked');
-            if (is_checked) {
-                $('.registerBtn').prop('disabled', false);
-            } else {
-                $('.registerBtn').prop('disabled', true);
-            }
-        });
+    <!-- Footer -->
+    <p class="text-center text-gray-500 text-sm mt-8">
+        &copy; {% now "Y" %} {% trans "Bilimni baholash agentligi" %}
+    </p>
+</div>
+{% endblock %}
 
-        const formValidateRegiter = array => {
-            let is_validRForm = true;
+{% block extra_js %}
+<script>
+    // Toggle password visibility
+    function togglePassword(inputId, btn) {
+        const input = document.getElementById(inputId);
+        const icon = btn.querySelector('.material-icons-outlined');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.textContent = 'visibility';
+        } else {
+            input.type = 'password';
+            icon.textContent = 'visibility_off';
+        }
+    }
 
-            // Avvalgi xatoliklarni tozalaymiz
-            $('.text-danger').remove();
-
-            array.forEach(field => {
-                const {key, value, message} = field;
-                const inputElement = $('.' + key);
-
-                if (key === 'email') {
-                    if (!value) {
-                        inputElement.after('<span class="text-danger">Iltimos, e-mailingizni kiriting.</span>');
-                        is_validRForm = false;
-                    } else if (!validateEmail(value)) {
-                        inputElement.after('<span class="text-danger">Iltimos, to‘g‘ri e-mail kiriting.</span>');
-                        is_validRForm = false;
-                    }
-                } else {
-                    if (!value) {
-                        inputElement.after(`<span class="text-danger">${message}ni kiriting!</span>`);
-                        is_validRForm = false;
-                    }
-                }
-            });
-
-            return is_validRForm;
-        };
-
-$('body').on('click', '.captcha', function (e) {
-    e.preventDefault();
-    $.getJSON("/ax_clone_site/captcha/refresh/", function (result) {
-        $('.captcha').attr('src', result['image_url']);
-        $('#id_captcha_0').val(result['key']);
+    // Initialize captcha on page load
+    $(document).ready(function() {
+        refreshCaptcha();
     });
-});
 
+    // Enable/disable submit button based on checkbox
+    $('#offerCheckbox').on('change', function() {
+        $('#registerBtn').prop('disabled', !this.checked);
+    });
 
-$('.registerForm').on('submit', function (e) {
-    e.preventDefault();
+    // Password strength checker
+    $('#password1').on('input', function() {
+        const password = $(this).val();
+        const bars = $('.password-strength-bar');
+        const text = $('.password-strength-text');
+        let strength = 0;
 
-    // Foydalanuvchi kiritgan ma'lumotlar
-    const username = $('.username').val();
-    const password1 = $('.password1').val();
-    const password2 = $('.password2').val();
+        if (password.length >= 8) strength++;
+        if (/[a-z]/.test(password)) strength++;
+        if (/[A-Z]/.test(password)) strength++;
+        if (/[0-9]/.test(password) && /[!@#$]/.test(password)) strength++;
 
-    // Formani tekshirish uchun massiv
-    const formData = [
-        { key: 'username', value: username, message: "Login" },
-        { key: 'password1', value: password1, message: "Parol" },
-        { key: 'password2', value: password2, message: "Takroriy parol" },
-    ];
+        bars.removeClass('bg-red-500 bg-yellow-500 bg-emerald-500');
+        bars.addClass('bg-gray-200');
 
-    // Avvalgi xatolik xabarlari tozalanadi
-    $('.text-danger').remove();
-    $('#registerFormError').empty();
+        const colors = ['bg-red-500', 'bg-yellow-500', 'bg-yellow-500', 'bg-emerald-500'];
+        const texts = [
+            "{% trans 'Juda zaif' %}",
+            "{% trans 'Zaif' %}",
+            "{% trans 'O\\'rtacha' %}",
+            "{% trans 'Kuchli' %}"
+        ];
+        const textColors = ['text-red-500', 'text-yellow-500', 'text-yellow-500', 'text-emerald-500'];
 
-    // Tekshiruv funksiyasi
-    const isValid = formValidateRegiter(formData);
+        for (let i = 0; i < strength; i++) {
+            $(bars[i]).removeClass('bg-gray-200').addClass(colors[strength - 1]);
+        }
 
-    // Agar forma to'g'ri to'ldirilgan bo'lsa — AJAX yuboriladi
-    if (isValid) {
-        const url = $('.registerForm').data('url');
+        if (password.length > 0) {
+            text.text(texts[strength - 1] || texts[0]);
+            text.removeClass('text-red-500 text-yellow-500 text-emerald-500').addClass(textColors[strength - 1] || textColors[0]);
+        } else {
+            text.text('');
+        }
+    });
+
+    // Password match checker
+    $('#password2').on('input', function() {
+        const password1 = $('#password1').val();
+        const password2 = $(this).val();
+        const matchText = $('.password-match-text');
+
+        if (password2.length > 0) {
+            matchText.removeClass('hidden');
+            if (password1 === password2) {
+                matchText.removeClass('text-red-500').addClass('text-emerald-500');
+                matchText.html('<span class="material-icons-outlined text-sm">check_circle</span><span>{% trans "Parollar mos" %}</span>');
+            } else {
+                matchText.removeClass('text-emerald-500').addClass('text-red-500');
+                matchText.html('<span class="material-icons-outlined text-sm">error</span><span>{% trans "Parollar mos emas" %}</span>');
+            }
+        } else {
+            matchText.addClass('hidden');
+        }
+    });
+
+    // Register form submission
+    $('.registerForm').on('submit', function(e) {
+        e.preventDefault();
+
+        const form = $(this);
+        const btn = $('#registerBtn');
+        const btnText = btn.find('.btn-text');
+        const btnIcon = btn.find('.btn-icon');
+        const spinner = btn.find('.spinner');
+        const errorDiv = $('#registerFormError');
+        const successDiv = $('#registerFormSuccess');
+
+        // Get form values
+        const username = form.find('.username').val().trim();
+        const password1 = form.find('.password1').val();
+        const password2 = form.find('.password2').val();
+        const role = form.find('input[name="chosen_role"]:checked').val();
+
+        // Validation
+        let hasError = false;
+        errorDiv.addClass('hidden');
+        successDiv.addClass('hidden');
+
+        if (!username || username.length < 5) {
+            errorDiv.removeClass('hidden');
+            errorDiv.find('.error-text').text("{% trans 'Foydalanuvchi nomi kamida 5 ta belgidan iborat bo\\'lishi kerak!' %}");
+            hasError = true;
+        } else if (!password1 || password1.length < 8) {
+            errorDiv.removeClass('hidden');
+            errorDiv.find('.error-text').text("{% trans 'Parol kamida 8 ta belgidan iborat bo\\'lishi kerak!' %}");
+            hasError = true;
+        } else if (password1 !== password2) {
+            errorDiv.removeClass('hidden');
+            errorDiv.find('.error-text').text("{% trans 'Parollar mos emas!' %}");
+            hasError = true;
+        } else if (!role) {
+            errorDiv.removeClass('hidden');
+            errorDiv.find('.error-text').text("{% trans 'Iltimos rol tanlang!' %}");
+            hasError = true;
+        }
+
+        if (hasError) return;
+
+        // Show loading state
+        btn.prop('disabled', true);
+        btnText.text("{% trans 'Kutib turing...' %}");
+        btnIcon.addClass('hidden');
+        spinner.removeClass('hidden');
 
         $.ajax({
             method: "POST",
-            url: url,
-            data: $('.registerForm').serialize(),
-            success: function (response) {
-                $('.text-danger').remove(); // Oldingi xatolarni tozalash
-
+            url: form.data('url'),
+            data: form.serialize(),
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            success: function(response) {
                 if (response.success) {
-                    $('#registerFormError').html(`<span class="text-success">${response.message}</span>`);
-                    window.location.reload();
-                    // Kerak bo‘lsa: window.location.href = "/";
+                    successDiv.removeClass('hidden');
+                    successDiv.find('.success-text').text(response.message);
+                    errorDiv.addClass('hidden');
+
+                    showToast(response.message, 'success');
+                    btnText.text("{% trans 'Muvaffaqiyatli!' %}");
+                    spinner.addClass('hidden');
+                    btnIcon.removeClass('hidden').text('check');
+
+                    setTimeout(function() {
+                        window.location.href = response.redirect_url || '/ax_clone_site/profile/login/';
+                    }, 2000);
                 } else {
-                    // CAPTCHA yoki boshqa xatolikni ajratib ko‘rsatish
-                    if (response.is_captcha === false) {
-                        $('#registerFormError').html(`<span class="text-danger">${response.message}</span>`);
-                    } else if (response.is_captcha === true) {
-                        $('#id_captcha_1').after(`<br><span class="text-danger">${response.message}</span>`);
-                    } else {
-                        $('#registerFormError').html(`<span class="text-danger">${response.message || "Noma’lum xatolik yuz berdi"}</span>`);
+                    errorDiv.removeClass('hidden');
+                    errorDiv.find('.error-text').text(response.message);
+                    successDiv.addClass('hidden');
+
+                    btn.prop('disabled', false);
+                    btnText.text("{% trans 'Ro\\'yxatdan o\\'tish' %}");
+                    spinner.addClass('hidden');
+                    btnIcon.removeClass('hidden').text('arrow_forward');
+
+                    if (response.is_captcha) {
+                        refreshCaptcha();
                     }
                 }
             },
-            error: function (xhr) {
-                // Server xatosi bo‘lsa
-                $('#registerFormError').html(`<span class="text-danger">Server xatoligi: ${xhr.status}</span>`);
+            error: function(xhr) {
+                errorDiv.removeClass('hidden');
+                errorDiv.find('.error-text').text("{% trans 'Server xatosi yuz berdi' %}");
+
+                btn.prop('disabled', false);
+                btnText.text("{% trans 'Ro\\'yxatdan o\\'tish' %}");
+                spinner.addClass('hidden');
+                btnIcon.removeClass('hidden').text('arrow_forward');
             }
         });
 
-        $.getJSON("/ax_clone_site/captcha/refresh/", function (result) {
-        $('.captcha').attr('src', result['image_url']);
-        $('#id_captcha_0').val(result['key']);
+        refreshCaptcha();
     });
+</script>
+
+<style>
+    .role-option input:checked ~ div .material-icons-outlined.check-icon {
+        display: block;
     }
-});
 
-
-    </script>
-{% endblock base_content %}
+    .role-option .peer:checked ~ .absolute .material-icons-outlined {
+        display: block !important;
+    }
+</style>
+{% endblock %}

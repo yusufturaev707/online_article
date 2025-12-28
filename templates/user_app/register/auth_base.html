@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+{% load static %}
+{% load i18n %}
+<html lang="uz">
+<head>
+    <meta charset="utf-8"/>
+    <title>{% block title %}{% endblock %} | Bilimni baholash agentligi</title>
+    <link rel="icon" type="image/x-icon" href="{% static 'img/logo.ico' %}">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+    <meta content="" name="description"/>
+    <meta content="" name="author"/>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out',
+                        'slide-up': 'slideUp 0.5s ease-out',
+                        'float': 'float 6s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet"/>
+
+    <style>
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        .input-field {
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px -10px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px -10px rgba(37, 99, 235, 0.5);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .floating-shapes div {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .captcha-input {
+            letter-spacing: 0.5em;
+            text-align: center;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Loading spinner */
+        .spinner {
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #2563eb;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+    <!-- Floating Background Shapes -->
+    <div class="floating-shapes fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="w-72 h-72 bg-blue-500 -top-20 -left-20" style="animation-delay: 0s;"></div>
+        <div class="w-96 h-96 bg-indigo-500 top-1/4 -right-32" style="animation-delay: 2s;"></div>
+        <div class="w-64 h-64 bg-purple-500 bottom-20 left-1/4" style="animation-delay: 4s;"></div>
+        <div class="w-48 h-48 bg-cyan-500 bottom-1/3 right-1/4" style="animation-delay: 1s;"></div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="relative min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-8">
+        {% block auth_content %}{% endblock %}
+    </div>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <!-- Common Scripts -->
+    <script>
+        // Captcha refresh
+        function refreshCaptcha() {
+            $.getJSON("/ax_clone_site/captcha/refresh/", function(result) {
+                $('.captcha-image').attr('src', result['image_url']);
+                $('#id_captcha_0').val(result['key']);
+            });
+        }
+
+        // Show toast notification
+        function showToast(message, type = 'error') {
+            const toast = document.createElement('div');
+            const bgColor = type === 'success' ? 'bg-green-500' : type === 'warning' ? 'bg-yellow-500' : 'bg-red-500';
+            const icon = type === 'success' ? 'check_circle' : type === 'warning' ? 'warning' : 'error';
+
+            toast.className = `fixed top-4 right-4 ${bgColor} text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 z-50 animate-slide-up`;
+            toast.innerHTML = `
+                <span class="material-icons-outlined">${icon}</span>
+                <span class="font-medium">${message}</span>
+            `;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(100%)';
+                toast.style.transition = 'all 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        // Input validation visual feedback
+        function setInputState(input, isValid, message = '') {
+            const wrapper = input.closest('.input-wrapper');
+            const errorEl = wrapper?.querySelector('.error-message');
+
+            if (isValid) {
+                input.classList.remove('border-red-500', 'ring-red-500');
+                input.classList.add('border-green-500', 'ring-green-500');
+                if (errorEl) errorEl.classList.add('hidden');
+            } else {
+                input.classList.remove('border-green-500', 'ring-green-500');
+                input.classList.add('border-red-500', 'ring-red-500');
+                if (errorEl && message) {
+                    errorEl.textContent = message;
+                    errorEl.classList.remove('hidden');
+                }
+            }
+        }
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,65 +1,247 @@
-{% extends 'user_app/base.html' %}
+{% extends 'user_app/register/auth_base.html' %}
 {% load i18n %}
 {% load static %}
-{% block title %}
-    {% trans "Kirish" %}
-{% endblock %}
-{% block base_content %}
-    <div id="page-container" class="fade">
-        <div class="login login-v1">
-            <div class="login-container">
-                <div class="login-header">
-                    <div class="brand">
-						<span class="logo" style="text-transform: uppercase;">
-							<span class="text-blue">Bilimni</span>
-							<span class="text-blue">&nbsp;baholash</span>
-							<span class="text-blue">&nbsp;agentligi</span>
-						</span>
-                        <b>{% trans "Tizimga kirish" %}</b>
-                    </div>
+
+{% block title %}{% trans "Kirish" %}{% endblock %}
+
+{% block auth_content %}
+<div class="w-full max-w-md animate-fade-in">
+    <!-- Logo & Header -->
+    <div class="text-center mb-8">
+        <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl shadow-xl mb-6 animate-float">
+            <span class="material-icons-outlined text-white text-4xl">school</span>
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">
+            {% trans "Tizimga kirish" %}
+        </h1>
+        <p class="text-gray-500">
+            {% trans "Bilimni baholash agentligi" %}
+        </p>
+    </div>
+
+    <!-- Login Card -->
+    <div class="glass-card rounded-3xl shadow-2xl p-8 sm:p-10 animate-slide-up">
+        <form method="POST" class="loginForm space-y-6" data-url="{% url 'login' %}">
+            {% csrf_token %}
+
+            <!-- Username Field -->
+            <div class="input-wrapper">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    <span class="flex items-center gap-2">
+                        <span class="material-icons-outlined text-lg text-gray-400">person</span>
+                        {% trans "Foydalanuvchi nomi" %}
+                    </span>
+                </label>
+                <input type="text"
+                       name="username"
+                       class="input-field w-full px-4 py-3.5 bg-gray-50 border-2 border-gray-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none transition-all"
+                       placeholder="{% trans 'Foydalanuvchi nomingizni kiriting' %}"
+                       autocomplete="username"
+                       required />
+                <p class="error-message hidden text-red-500 text-sm mt-1.5 flex items-center gap-1">
+                    <span class="material-icons-outlined text-sm">error</span>
+                    <span></span>
+                </p>
+            </div>
+
+            <!-- Password Field -->
+            <div class="input-wrapper">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    <span class="flex items-center gap-2">
+                        <span class="material-icons-outlined text-lg text-gray-400">lock</span>
+                        {% trans "Parol" %}
+                    </span>
+                </label>
+                <div class="relative">
+                    <input type="password"
+                           name="password"
+                           id="password"
+                           class="input-field w-full px-4 py-3.5 pr-12 bg-gray-50 border-2 border-gray-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none transition-all"
+                           placeholder="{% trans 'Parolingizni kiriting' %}"
+                           autocomplete="current-password"
+                           required />
+                    <button type="button" onclick="togglePassword('password', this)" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
+                        <span class="material-icons-outlined">visibility_off</span>
+                    </button>
                 </div>
-                <div class="login-body">
-                    <div class="login-content">
-                        <form method="POST" class="margin-bottom-0 loginForm" data-url="{% url 'login' %}">
-                            {% csrf_token %}
-                            <div class="form-group m-b-20">
-                                <input type="text" name="username"
-                                       class="form-control form-control-xs inverse-mode usernameLogin forshadow"
-                                       placeholder="{% trans 'Foydalanuvchi nomi' %}"/>
-                            </div>
+                <p class="error-message hidden text-red-500 text-sm mt-1.5 flex items-center gap-1">
+                    <span class="material-icons-outlined text-sm">error</span>
+                    <span></span>
+                </p>
+            </div>
 
-                            <div class="form-group m-b-20">
-                                <input type="password" name="password"
-                                       class="form-control form-control-xs inverse-mode passwordLogin forshadow"
-                                       placeholder="{% trans 'Parol' %}"/>
-                            </div>
-
-                            <div class="form-group m-b-20">
-                                {{ form.captcha.errors }}
-                                <i class="icon-refresh captcha forshadow" style="color: #246dea; font-size: large; font-weight: bold"></i>
-                                &nbsp;&nbsp;&nbsp;{{ form.captcha }}
-                                <input type="hidden" name="next" value="{{ next }}">
-                            </div>
-
-                            <div class="login-buttons">
-                                <button type="submit"
-                                        class="btn btn-primary btn-block btn-md loginBtn forshadow">{% trans "Kirish" %}</button>
-                            </div>
-                            <div class="m-t-20 m-b-20 p-b-20">
-                                {% trans "Tizimdan oldin ro'yxatdan o'tmagan bo'lsangiz. Bu linkga kiring" %} <a
-                                    href="{% url 'register' %}">{% trans "Ro'yxatdan o'tish" %}</a>
-                            </div>
-                            <div class="row d-flex justify-content-center" id="loginFormError"></div>
-                            <hr/>
-                            <p class="text-center text-grey-darker mb-0">
-                                &copy; Bilimni baholash agentligi
-                            </p>
-                        </form>
+            <!-- Captcha Field -->
+            <div class="input-wrapper captcha-wrapper">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    <span class="flex items-center gap-2">
+                        <span class="material-icons-outlined text-lg text-gray-400">verified_user</span>
+                        {% trans "Tekshiruv kodi" %}
+                    </span>
+                </label>
+                <div class="flex items-center gap-3">
+                    <div class="flex-shrink-0 bg-white border-2 border-gray-200 rounded-xl p-2 flex items-center gap-2">
+                        {{ form.captcha.0 }}
+                        <img src="" alt="captcha" class="captcha-image h-10 rounded-lg" />
+                        <button type="button" onclick="refreshCaptcha()" class="p-2 hover:bg-gray-100 rounded-lg transition-colors" title="{% trans 'Yangilash' %}">
+                            <span class="material-icons-outlined text-blue-500">refresh</span>
+                        </button>
                     </div>
+                    <input type="text"
+                           name="captcha_1"
+                           id="id_captcha_1"
+                           class="captcha-input input-field flex-1 px-4 py-3.5 bg-gray-50 border-2 border-gray-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 outline-none transition-all font-mono text-lg"
+                           placeholder="= ?"
+                           maxlength="10"
+                           autocomplete="off" />
+                </div>
+                <p class="error-message hidden text-red-500 text-sm mt-1.5 flex items-center gap-1">
+                    <span class="material-icons-outlined text-sm">error</span>
+                    <span></span>
+                </p>
+            </div>
+
+            <!-- Error Message Area -->
+            <div id="loginFormError" class="hidden">
+                <div class="bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3">
+                    <span class="material-icons-outlined text-red-500 flex-shrink-0">error</span>
+                    <p class="text-red-700 text-sm error-text"></p>
                 </div>
             </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn-primary w-full py-4 text-white font-semibold rounded-xl shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                <span class="btn-text">{% trans "Kirish" %}</span>
+                <span class="material-icons-outlined btn-icon">arrow_forward</span>
+                <div class="spinner hidden"></div>
+            </button>
+        </form>
+
+        <!-- Divider -->
+        <div class="relative my-8">
+            <div class="absolute inset-0 flex items-center">
+                <div class="w-full border-t border-gray-200"></div>
+            </div>
+            <div class="relative flex justify-center text-sm">
+                <span class="px-4 bg-white text-gray-500">{% trans "yoki" %}</span>
+            </div>
         </div>
-        <a href="javascript:;" class="btn btn-icon btn-circle btn-success btn-scroll-to-top fade"
-           data-click="scroll-top"><i class="fa fa-angle-up"></i></a>
+
+        <!-- Register Link -->
+        <div class="text-center">
+            <p class="text-gray-600 mb-4">
+                {% trans "Tizimdan oldin ro'yxatdan o'tmagan bo'lsangiz" %}
+            </p>
+            <a href="{% url 'register' %}" class="inline-flex items-center gap-2 px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-all hover:shadow-md">
+                <span class="material-icons-outlined">person_add</span>
+                {% trans "Ro'yxatdan o'tish" %}
+            </a>
+        </div>
     </div>
+
+    <!-- Footer -->
+    <p class="text-center text-gray-500 text-sm mt-8">
+        &copy; {% now "Y" %} {% trans "Bilimni baholash agentligi" %}
+    </p>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Toggle password visibility
+    function togglePassword(inputId, btn) {
+        const input = document.getElementById(inputId);
+        const icon = btn.querySelector('.material-icons-outlined');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.textContent = 'visibility';
+        } else {
+            input.type = 'password';
+            icon.textContent = 'visibility_off';
+        }
+    }
+
+    // Initialize captcha on page load
+    $(document).ready(function() {
+        refreshCaptcha();
+    });
+
+    // Login form submission
+    $('.loginForm').on('submit', function(e) {
+        e.preventDefault();
+
+        const form = $(this);
+        const btn = form.find('button[type="submit"]');
+        const btnText = btn.find('.btn-text');
+        const btnIcon = btn.find('.btn-icon');
+        const spinner = btn.find('.spinner');
+        const errorDiv = $('#loginFormError');
+
+        // Get form values
+        const username = form.find('input[name="username"]').val().trim();
+        const password = form.find('input[name="password"]').val();
+
+        // Basic validation
+        if (!username || !password) {
+            errorDiv.removeClass('hidden');
+            errorDiv.find('.error-text').text("{% trans 'Login va parolni kiriting!' %}");
+            return;
+        }
+
+        // Show loading state
+        btn.prop('disabled', true);
+        btnText.text("{% trans 'Kutib turing...' %}");
+        btnIcon.addClass('hidden');
+        spinner.removeClass('hidden');
+        errorDiv.addClass('hidden');
+
+        $.ajax({
+            method: "POST",
+            url: form.data('url'),
+            data: form.serialize(),
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            success: function(response) {
+                if (response.success) {
+                    showToast(response.message, 'success');
+                    btnText.text("{% trans 'Muvaffaqiyatli!' %}");
+                    spinner.addClass('hidden');
+                    btnIcon.removeClass('hidden').text('check');
+
+                    setTimeout(function() {
+                        window.location.href = '/ax_clone_site/profile/user_dashboard/';
+                    }, 1000);
+                } else {
+                    // Show error
+                    errorDiv.removeClass('hidden');
+                    errorDiv.find('.error-text').text(response.message);
+
+                    // Reset button
+                    btn.prop('disabled', false);
+                    btnText.text("{% trans 'Kirish' %}");
+                    spinner.addClass('hidden');
+                    btnIcon.removeClass('hidden').text('arrow_forward');
+
+                    // Show captcha if required
+                    if (response.is_captcha) {
+                        $('.captcha-wrapper').removeClass('hidden');
+                        refreshCaptcha();
+                    }
+                }
+            },
+            error: function(xhr) {
+                errorDiv.removeClass('hidden');
+                errorDiv.find('.error-text').text("{% trans 'Server xatosi yuz berdi' %}");
+
+                btn.prop('disabled', false);
+                btnText.text("{% trans 'Kirish' %}");
+                spinner.addClass('hidden');
+                btnIcon.removeClass('hidden').text('arrow_forward');
+            }
+        });
+
+        // Refresh captcha after each attempt
+        refreshCaptcha();
+    });
+</script>
 {% endblock %}

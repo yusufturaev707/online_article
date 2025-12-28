@@ -674,43 +674,93 @@ def reviewers_list(request):
 
 @unauthenticated_user
 def login_page(request):
-    if request.method == 'POST' and is_ajax(request):
-        form = LoginForm(request, data=request.POST)
+    from user_app.models import LoginAttempt
+    from user_app.utils import get_client_ip
 
-        if form.is_valid():
-            username = request.POST.get('username')
-            password = request.POST.get('password')
-            user = authenticate(request, username=username, password=password)
-            if user is not None:
-                login(request, user)
-        else:
-            username = request.POST.get('username')
-            password = request.POST.get('password')
-            user = authenticate(request, username=username, password=password)
-            if user is None:
+    MAX_LOGIN_ATTEMPTS = 5  # Maksimal urinishlar soni
+    LOCKOUT_MINUTES = 15    # Bloklash vaqti (daqiqa)
+
+    if request.method == 'POST' and is_ajax(request):
+        username = request.POST.get('username', '').strip()
+        password = request.POST.get('password', '')
+        client_ip = get_client_ip(request)
+
+        # Bo'sh maydonlarni tekshirish
+        if not username or not password:
+            return JsonResponse({
+                "success": False,
+                "message": _("Login va parolni kiriting!")
+            })
+
+        # Rate limiting - ko'p urinishlarni tekshirish
+        failed_attempts = LoginAttempt.get_failed_attempts(client_ip, username, LOCKOUT_MINUTES)
+        if failed_attempts >= MAX_LOGIN_ATTEMPTS:
+            return JsonResponse({
+                "success": False,
+                "message": _("Juda ko'p muvaffaqiyatsiz urinish. {} daqiqadan keyin qayta urinib ko'ring.").format(LOCKOUT_MINUTES)
+            })
+
+        # CAPTCHA tekshiruvi (3 ta muvaffaqiyatsiz urinishdan keyin)
+        if failed_attempts >= 3:
+            input_value = request.POST.get('captcha_1', '')
+            hash_key = request.POST.get('captcha_0', '')
+
+            if not CaptchaStore.objects.filter(hashkey=hash_key).exists():
                 return JsonResponse({
-                    "is_captcha": False,
-                    "message": _("Login yoki parol to'g'ri kiritilmadi!")
+                    "success": False,
+                    "is_captcha": True,
+                    "message": _("Captchani yangilab, qayta kiriting!")
                 })
-            # input_value = request.POST.get('captcha_1')
-            # hash_key = request.POST.get('captcha_0')
-            #
-            # if CaptchaStore.objects.filter(hashkey=hash_key).exists():
-            #     ob_captcha = get_object_or_404(CaptchaStore, hashkey=hash_key)
-            #     if len(str(input_value)) == 0:
-            #         return JsonResponse({
-            #             "is_captcha": False,
-            #             "message": _("Tekshiruv kodini kiriting!")
-            #         })
-            #
-            #     if int(input_value) != int(ob_captcha.response):
-            #         return JsonResponse({
-            #             "is_captcha": True,
-            #             "message": _("Tekshiruv kodi noto'g'ri!")
-            #         })
-            # else:
-            #     return JsonResponse({"is_captcha": True, "message": _(
-            #         "Captchani refresh qiling va matematik ifodani qiymatini qayta kiriting!")})
+
+            ob_captcha = get_object_or_404(CaptchaStore, hashkey=hash_key)
+            if not input_value or input_value != ob_captcha.response:
+                return JsonResponse({
+                    "success": False,
+                    "is_captcha": True,
+                    "message": _("Tekshiruv kodi noto'g'ri!")
+                })
+
+        # Foydalanuvchi mavjudligini tekshirish (is_blocked uchun)
+        try:
+            user_obj = User.objects.get(username=username)
+            if user_obj.is_blocked:
+                # Bloklangan foydalanuvchi haqida urinishni yozmaymiz (information disclosure oldini olish)
+                return JsonResponse({
+                    "success": False,
+                    "message": _("Hisobingiz bloklangan. Administrator bilan bog'laning.")
+                })
+        except User.DoesNotExist:
+            pass  # Foydalanuvchi topilmasa, umumiy xato xabarini ko'rsatamiz
+
+        # Autentifikatsiya
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            # Muvaffaqiyatli login
+            LoginAttempt.clear_attempts(client_ip, username)
+            login(request, user)
+            return JsonResponse({
+                "success": True,
+                "message": _("Tizimga muvaffaqiyatli kirdingiz!")
+            })
+        else:
+            # Muvaffaqiyatsiz login - urinishni yozib qo'yish
+            LoginAttempt.record_attempt(client_ip, username, was_successful=False)
+            remaining_attempts = MAX_LOGIN_ATTEMPTS - failed_attempts - 1
+
+            if remaining_attempts > 0:
+                return JsonResponse({
+                    "success": False,
+                    "is_captcha": failed_attempts >= 2,  # Keyingi urinishda captcha ko'rsatish
+                    "message": _("Login yoki parol noto'g'ri! {} ta urinish qoldi.").format(remaining_attempts)
+                })
+            else:
+                return JsonResponse({
+                    "success": False,
+                    "message": _("Juda ko'p muvaffaqiyatsiz urinish. {} daqiqadan keyin qayta urinib ko'ring.").format(LOCKOUT_MINUTES)
+                })
+
+    # GET method
     context = {
         "form": LoginForm(),
     }
@@ -725,6 +775,24 @@ def register_page(request):
         password1 = request.POST.get('password1', '')
         password2 = request.POST.get('password2', '')
         role = request.POST.get('chosen_role', '')
+
+        # Rol validatsiyasi - faqat 'author' va 'out_expert' ruxsat etilgan
+        ALLOWED_ROLES = ['author', 'out_expert']
+        try:
+            chosen_role_id = int(role)
+            chosen_role_obj = Role.objects.get(pk=chosen_role_id)
+            if chosen_role_obj.code_name not in ALLOWED_ROLES:
+                return JsonResponse({
+                    "success": False,
+                    "is_captcha": False,
+                    "message": _("Noto'g'ri rol tanlandi!")
+                })
+        except (ValueError, Role.DoesNotExist):
+            return JsonResponse({
+                "success": False,
+                "is_captcha": False,
+                "message": _("Rol tanlanmadi yoki noto'g'ri!")
+            })
 
         # Parollar mosligini tekshirish
         if password1 != password2:
@@ -766,6 +834,8 @@ def register_page(request):
 
         # Foydalanuvchini yaratish
         user = form.save(commit=False)
+        # CWE-287 fix: is_blocked = False qilib foydalanuvchi login qila oladi
+        user.is_blocked = False
         user.save()
 
         try:
@@ -781,15 +851,16 @@ def register_page(request):
             user.save()
             user.roles.add(user.chosen_role)
         except Exception as e:
+            user.delete()  # Xatolik bo'lsa foydalanuvchini o'chirish
             return JsonResponse({"success": False, "is_captcha": False, "message": str(e)})
 
-        # Login qilish
-        user = authenticate(request, username=user.username, password=password1)
-        if user:
-            login(request, user)
-            return JsonResponse({"success": True, "is_captcha": False, "message": _("Ro'yxatdan muvaffaqiyatli o'tdingiz!")})
-        else:
-            return JsonResponse({"success": False, "is_captcha": False, "message": _("Avtorizatsiya xatosi!")})
+        # CWE-287 fix: Auto-login olib tashlandi - foydalanuvchi o'zi login qilishi kerak
+        return JsonResponse({
+            "success": True,
+            "is_captcha": False,
+            "message": _("Ro'yxatdan muvaffaqiyatli o'tdingiz! Iltimos tizimga kiring."),
+            "redirect_url": "/profile/login/"
+        })
 
     # GET method
     form = CreateUserForm()

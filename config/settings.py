@@ -178,6 +178,11 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
 AUTH_USER_MODEL = 'user_app.User'
 
+# CWE-287 fix: Custom authentication backend - is_blocked tekshiradi
+AUTHENTICATION_BACKENDS = [
+    'user_app.backends.SecureAuthenticationBackend',
+]
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CKEDITOR_JQUERY_URL = 'https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js'
