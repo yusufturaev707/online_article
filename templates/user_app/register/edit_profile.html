@@ -222,27 +222,62 @@
                                             </div>
                                             <div class="tw-p-4">
                                                 {% if 3 in user.get_roles %}
-                                                    <!-- Foydalanuvchi allaqachon taqrizchi -->
+                                                    <!-- Foydalanuvchi allaqachon taqrizchi roli bor -->
+                                                    <div class="tw-flex tw-items-center tw-gap-3 tw-p-3 tw-bg-green-50 tw-rounded-lg tw-border tw-border-green-200">
+                                                        <div class="tw-flex-shrink-0 tw-w-10 tw-h-10 tw-bg-green-500 tw-rounded-full tw-flex tw-items-center tw-justify-center">
+                                                            <span class="material-icons tw-text-white">verified</span>
+                                                        </div>
+                                                        <div>
+                                                            <p class="tw-text-green-800 tw-font-medium tw-text-sm">{% trans "Faol taqrizchi" %}</p>
+                                                            <p class="tw-text-green-600 tw-text-xs">{% trans "Siz taqrizchi sifatida faoliyat yuritmoqdasiz" %}</p>
+                                                        </div>
+                                                    </div>
+
+                                                {% elif reviewer_status == 'approved' %}
+                                                    <!-- So'rov tasdiqlangan -->
                                                     <div class="tw-flex tw-items-center tw-gap-3 tw-p-3 tw-bg-green-50 tw-rounded-lg tw-border tw-border-green-200">
                                                         <div class="tw-flex-shrink-0 tw-w-10 tw-h-10 tw-bg-green-500 tw-rounded-full tw-flex tw-items-center tw-justify-center">
                                                             <span class="material-icons tw-text-white">check_circle</span>
                                                         </div>
                                                         <div>
                                                             <p class="tw-text-green-800 tw-font-medium tw-text-sm">{% trans "Tasdiqlangan" %}</p>
-                                                            <p class="tw-text-green-600 tw-text-xs">{% trans "Siz allaqachon taqrizchisiz" %}</p>
+                                                            <p class="tw-text-green-600 tw-text-xs">{% trans "Arizangiz tasdiqlandi!" %}</p>
+                                                            {% if reviewer_status_name %}
+                                                                <p class="tw-text-green-500 tw-text-xs tw-mt-1">{{ reviewer_status_name }}</p>
+                                                            {% endif %}
                                                         </div>
                                                     </div>
-                                                {% elif is_send_request %}
-                                                    <!-- So'rov yuborilgan, javob kutilmoqda -->
+
+                                                {% elif reviewer_status == 'rejected' %}
+                                                    <!-- So'rov rad etilgan -->
+                                                    <div class="tw-flex tw-items-center tw-gap-3 tw-p-3 tw-bg-red-50 tw-rounded-lg tw-border tw-border-red-200">
+                                                        <div class="tw-flex-shrink-0 tw-w-10 tw-h-10 tw-bg-red-500 tw-rounded-full tw-flex tw-items-center tw-justify-center">
+                                                            <span class="material-icons tw-text-white">cancel</span>
+                                                        </div>
+                                                        <div>
+                                                            <p class="tw-text-red-800 tw-font-medium tw-text-sm">{% trans "Rad etilgan" %}</p>
+                                                            <p class="tw-text-red-600 tw-text-xs">{% trans "Afsuski, arizangiz rad etildi" %}</p>
+                                                            {% if reviewer_status_name %}
+                                                                <p class="tw-text-red-500 tw-text-xs tw-mt-1">{{ reviewer_status_name }}</p>
+                                                            {% endif %}
+                                                        </div>
+                                                    </div>
+
+                                                {% elif reviewer_status == 'pending' %}
+                                                    <!-- So'rov ko'rib chiqilmoqda -->
                                                     <div class="tw-flex tw-items-center tw-gap-3 tw-p-3 tw-bg-amber-50 tw-rounded-lg tw-border tw-border-amber-200">
                                                         <div class="tw-flex-shrink-0 tw-w-10 tw-h-10 tw-bg-amber-500 tw-rounded-full tw-flex tw-items-center tw-justify-center tw-animate-pulse">
                                                             <span class="material-icons tw-text-white">hourglass_top</span>
                                                         </div>
                                                         <div>
                                                             <p class="tw-text-amber-800 tw-font-medium tw-text-sm">{% trans "Ko'rib chiqilmoqda" %}</p>
-                                                            <p class="tw-text-amber-600 tw-text-xs">{% trans "So'rovingiz yuborilgan" %}</p>
+                                                            <p class="tw-text-amber-600 tw-text-xs">{% trans "Arizangiz ko'rib chiqilmoqda, iltimos kuting" %}</p>
+                                                            {% if reviewer_status_name %}
+                                                                <p class="tw-text-amber-500 tw-text-xs tw-mt-1">{{ reviewer_status_name }}</p>
+                                                            {% endif %}
                                                         </div>
                                                     </div>
+
                                                 {% else %}
                                                     <!-- Yangi so'rov yuborish mumkin -->
                                                     <div class="tw-space-y-3">

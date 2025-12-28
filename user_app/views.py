@@ -23,7 +23,7 @@ from user_app.forms import *
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
-from user_app.models import User, ReviewerArticle, StatusReview
+from user_app.models import User, ReviewerArticle, StatusReview, Reviewer, ReviewerEditor, ReviewerEditorStatus
 from user_app.utils import *
 import numpy as np
 from django.template.loader import render_to_string, get_template
@@ -2072,8 +2072,45 @@ def edit_profile(request):
     else:
         form = UpdateUserForm(instance=user)
         roles = Role.objects.all().order_by('-id')
-        res = Reviewer.objects.filter(user=user).exists()
-        context = {"user": user, "teacher": teacher, 'form': form, 'roles': roles, "is_send_request": res}
+
+        # Taqrizchi so'rovi statusini aniqlash
+        reviewer_request = None
+        reviewer_status = None  # None, 'pending', 'approved', 'rejected'
+        reviewer_status_name = None
+
+        reviewer = Reviewer.objects.filter(user=user).first()
+        if reviewer:
+            # ReviewerEditor orqali statusni olish
+            reviewer_editor = ReviewerEditor.objects.filter(reviewer=reviewer).first()
+            if reviewer_editor:
+                reviewer_request = reviewer_editor
+                status_id = reviewer_editor.status.id if reviewer_editor.status else None
+
+                # Status ID larga qarab holat aniqlash
+                # 1 = Ko'rib chiqilmoqda (pending)
+                # 2 = Tasdiqlangan (approved)
+                # 3 = Rad etilgan (rejected)
+                if status_id == 1:
+                    reviewer_status = 'pending'
+                elif status_id == 2:
+                    reviewer_status = 'approved'
+                elif status_id == 3:
+                    reviewer_status = 'rejected'
+                else:
+                    reviewer_status = 'pending'  # Default
+
+                reviewer_status_name = reviewer_editor.status.name if reviewer_editor.status else None
+
+        context = {
+            "user": user,
+            "teacher": teacher,
+            'form': form,
+            'roles': roles,
+            "is_send_request": reviewer is not None,
+            "reviewer_status": reviewer_status,
+            "reviewer_status_name": reviewer_status_name,
+            "reviewer_request": reviewer_request,
+        }
         return render(request, 'user_app/register/edit_profile.html', context)
 
 
