@@ -4,6 +4,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include, re_path
+from user_app.secure_media import secure_media_view
 
 # 1. i18n URL (til prefiksisiz) - TO'G'RI
 urlpatterns = [
@@ -11,8 +12,10 @@ urlpatterns = [
 ]
 
 # 2. Media va Static (til prefiksisiz)
+# XAVFSIZLIK: Barcha media fayllar secure_media_view orqali xizmat ko'rsatiladi
+# Bu CWE-200 (Information Disclosure) va Broken Access Control zaifliklarini oldini oladi
 urlpatterns += [
-    re_path(r'^ax_clone_site/media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+    re_path(r'^ax_clone_site/media/(?P<path>.*)$', secure_media_view, name='secure_media'),
     re_path(r'^ax_clone_site/static/(?P<path>.*)$', serve, {'document_root': settings.STATIC_ROOT}),
 ]
 

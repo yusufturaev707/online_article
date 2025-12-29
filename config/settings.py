@@ -10,9 +10,13 @@ environ.Env.read_env()
 
 SECRET_KEY = env("SECRET_KEY")
 
-DEBUG: bool = True
+# XAVFSIZLIK: DEBUG faqat development muhitida True bo'lishi kerak
+# Production da .env faylida DEBUG=False bo'lishi shart
+DEBUG = env.bool("DEBUG", default=False)
 
-ALLOWED_HOSTS = ['*']
+# XAVFSIZLIK: ALLOWED_HOSTS aniq belgilanishi kerak
+# Production da .env faylida ALLOWED_HOSTS=your-domain.com bo'lishi shart
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=['localhost', '127.0.0.1'])
 
 # CSRF_TRUSTED_ORIGINS = ["https://ejournal.uzbmb.uz", "https://www.ejournal.uzbmb.uz"]
 # SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
@@ -284,13 +288,14 @@ CKEDITOR_CONFIGS = {
     }
 }
 
+# Email sozlamalari - maxfiy ma'lumotlar .env faylidan olinadi (CWE-200 fix)
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'  # python -m pip install aiosmtpd
+EMAIL_HOST = env("EMAIL_HOST", default='smtp.gmail.com')
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
-EMAIL_PORT = 587
-EMAIL_HOST_USER = 'uzbmb.uz@gmail.com'  # sender's email-id
-EMAIL_HOST_PASSWORD = 'hbqb wclq jmez pucy'  # password associated with above email-id
+EMAIL_PORT = env.int("EMAIL_PORT", default=587)
+EMAIL_HOST_USER = env("EMAIL_HOST_USER", default='')
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default='')
 
 # Django Bleach - XSS himoyasi
 BLEACH_ALLOWED_TAGS = [
@@ -322,3 +327,67 @@ BLEACH_ALLOWED_PROTOCOLS = ['http', 'https', 'mailto']
 
 BLEACH_STRIP_TAGS = True
 BLEACH_STRIP_COMMENTS = True
+
+# Xavfsizlik loglari sozlamasi
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'security': {
+            'format': '[{asctime}] {levelname} {name} {message}',
+            'style': '{',
+            'datefmt': '%Y-%m-%d %H:%M:%S',
+        },
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+    },
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse',
+        },
+    },
+    'handlers': {
+        'security_file': {
+            'level': 'WARNING',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs', 'security.log'),
+            'maxBytes': 10 * 1024 * 1024,  # 10 MB
+            'backupCount': 5,
+            'formatter': 'security',
+        },
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+        'mail_admins': {
+            'level': 'ERROR',
+            'filters': ['require_debug_false'],
+            'class': 'django.utils.log.AdminEmailHandler',
+        },
+    },
+    'loggers': {
+        'security': {
+            'handlers': ['security_file', 'console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'django.security': {
+            'handlers': ['security_file', 'mail_admins'],
+            'level': 'WARNING',
+            'propagate': False,
+        },
+        'django.request': {
+            'handlers': ['console', 'mail_admins'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+    },
+}
+
+# Logs papkasini yaratish
+LOGS_DIR = os.path.join(BASE_DIR, 'logs')
+if not os.path.exists(LOGS_DIR):
+    os.makedirs(LOGS_DIR)
