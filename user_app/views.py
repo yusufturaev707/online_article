@@ -34,10 +34,59 @@ from django.core.paginator import Paginator
 from captcha.models import CaptchaStore
 
 
+@login_required(login_url='login')
+def session_refresh(request):
+    """
+    Session ni yangilash (timeout ni qayta boshlash).
+    Frontend tomonidan session davom ettirish uchun chaqiriladi.
+    """
+    from django.utils import timezone
+
+    if request.user.is_authenticated:
+        request.session['last_activity'] = timezone.now().isoformat()
+        return JsonResponse({
+            'success': True,
+            'message': 'Session yangilandi'
+        })
+    else:
+        return JsonResponse({
+            'success': False,
+            'session_expired': True,
+            'message': 'Session tugagan'
+        }, status=401)
+
+
 def logout_user(request):
+    """
+    Foydalanuvchini xavfsiz tarzda tizimdan chiqarish.
+    Session va barcha bog'liq cookie larni to'liq tozalash.
+    """
+    # Session kalit ni olish (logout dan oldin)
+    session_key = request.session.session_key
+
+    # Session ni to'liq tozalash (flush)
+    try:
+        request.session.flush()
+    except Exception:
+        pass
+
+    # Foydalanuvchini logout qilish
     logout(request)
+
+    # Eski session yozuvini bazadan o'chirish
+    if session_key:
+        from django.contrib.sessions.models import Session
+        try:
+            Session.objects.filter(session_key=session_key).delete()
+        except Exception:
+            pass
+
+    # Response yaratish va cookie larni o'chirish
     response = redirect('main_page')
     response.delete_cookie('page')
+    response.delete_cookie('sessionid')  # Session cookie ni o'chirish
+    response.delete_cookie('csrftoken')  # CSRF cookie ni o'chirish
+
     return response
 
 
@@ -746,6 +795,14 @@ def login_page(request):
             # Muvaffaqiyatli login
             LoginAttempt.clear_attempts(client_ip, username)
             login(request, user)
+
+            # Session xavfsizlik ma'lumotlarini o'rnatish
+            from django.utils import timezone
+            request.session['last_activity'] = timezone.now().isoformat()
+            request.session['session_ip'] = client_ip
+            request.session['session_user_agent'] = request.META.get('HTTP_USER_AGENT', '')[:200]
+            request.session['login_time'] = timezone.now().isoformat()
+
             return JsonResponse({
                 "success": True,
                 "message": _("Tizimga muvaffaqiyatli kirdingiz!")

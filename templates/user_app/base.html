@@ -128,5 +128,64 @@
 {% block extra_js %}{% endblock %}
 <!-- ================== END CUSTOM JS ================== -->
 
+<!-- ================== BEGIN SESSION TIMEOUT HANDLER ================== -->
+{% if user.is_authenticated %}
+<script>
+(function() {
+    // Global AJAX error handler for session timeout
+    $(document).ajaxError(function(event, jqXHR, settings, thrownError) {
+        if (jqXHR.status === 401) {
+            try {
+                var response = JSON.parse(jqXHR.responseText);
+                if (response.session_expired) {
+                    swal({
+                        title: "{% trans 'Sessiya tugadi' %}",
+                        text: "{% trans 'Sessiya muddati tugadi. Qayta kirishingiz kerak.' %}",
+                        icon: "warning",
+                        button: "{% trans 'Kirish sahifasiga o\\'tish' %}"
+                    }).then(function() {
+                        window.location.href = response.redirect_url || '/login/';
+                    });
+                }
+            } catch (e) {
+                // JSON parse error - ignore
+            }
+        }
+    });
+
+    // Session activity monitor - warn before timeout
+    var sessionWarningShown = false;
+    var sessionTimeout = {{ session_timeout_minutes|default:15 }};  // Minutes
+    var warningTime = (sessionTimeout - 2) * 60 * 1000;  // 2 minutes before timeout
+
+    setTimeout(function() {
+        if (!sessionWarningShown) {
+            sessionWarningShown = true;
+            swal({
+                title: "{% trans 'Sessiya ogohlantirishi' %}",
+                text: "{% trans 'Sizning sessiyangiz tez orada tugaydi. Davom etishni xohlaysizmi?' %}",
+                icon: "warning",
+                buttons: {
+                    cancel: "{% trans 'Chiqish' %}",
+                    confirm: "{% trans 'Davom etish' %}"
+                }
+            }).then(function(willContinue) {
+                if (willContinue) {
+                    // Refresh session by making a simple request
+                    $.get('/api/session-refresh/').fail(function() {
+                        // If no such endpoint, just reload
+                        window.location.reload();
+                    });
+                } else {
+                    window.location.href = '/logout/';
+                }
+            });
+        }
+    }, warningTime);
+})();
+</script>
+{% endif %}
+<!-- ================== END SESSION TIMEOUT HANDLER ================== -->
+
 </body>
 </html>

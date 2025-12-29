@@ -37,6 +37,7 @@ urlpatterns = [
 
     path('login/', login_page, name='login'),
     path('logout', logout_user, name='logout'),
+    path('api/session-refresh/', session_refresh, name='session_refresh'),
     path('register/', register_page, name='register'),
     path('choosen_reviewer_role/', choose_roles, name='choosen_reviewer_role'),
     path('choosen_reviewer_role_list/', reviewer_role_list, name='choosen_reviewer_role_list'),

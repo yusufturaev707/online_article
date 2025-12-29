@@ -17,12 +17,21 @@ ALLOWED_HOSTS = ['*']
 # CSRF_TRUSTED_ORIGINS = ["https://ejournal.uzbmb.uz", "https://www.ejournal.uzbmb.uz"]
 # SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
-SESSION_COOKIE_AGE = 86400
-SESSION_SAVE_EVERY_REQUEST = True
+# Session xavfsizlik sozlamalari
+SESSION_COOKIE_AGE = 120  # 30 daqiqa (1800 sekund) - maksimal session davomiyligi
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Brauzer yopilganda session o'chadi
+SESSION_SAVE_EVERY_REQUEST = True  # Har bir so'rovda session yangilanadi (sliding expiration)
+SESSION_COOKIE_SECURE = True  # Cookie faqat HTTPS orqali yuboriladi
+SESSION_COOKIE_HTTPONLY = True  # JavaScript orqali cookiega kirish taqiqlanadi
+SESSION_COOKIE_SAMESITE = 'Lax'  # CSRF himoyasi
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+
+# Session harakatsizlik vaqti (daqiqada) - middleware tomonidan tekshiriladi
+SESSION_INACTIVITY_TIMEOUT = 1  # 15 daqiqa harakatsizlikdan keyin session o'chadi
+
+# CSRF xavfsizlik sozlamalari
 CSRF_COOKIE_SECURE = True
 CSRF_COOKIE_HTTPONLY = True
-SESSION_COOKIE_SAMESITE = 'Lax'
-SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
@@ -75,6 +84,9 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'online_users.middleware.OnlineNowMiddleware',
+    # Session xavfsizlik middleware lari
+    'user_app.middleware.SessionInactivityMiddleware',  # Harakatsizlik timeout
+    'user_app.middleware.SessionSecurityMiddleware',    # IP/User-Agent tekshiruvi
 ]
 
 
@@ -103,6 +115,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'user_app.context_processors.session_settings',  # Session timeout
             ],
         },
     },
