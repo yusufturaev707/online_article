@@ -117,7 +117,7 @@ class SessionSecurityMiddleware:
             else:
                 # IP o'zgargan bo'lsa - session ni yakunlash
                 if session_ip != current_ip:
-                    self._handle_suspicious_activity(request, 'IP manzili o'zgardi')
+                    self._handle_suspicious_activity(request, "IP manzili o'zgardi")
                     logout(request)
                     request.session.flush()
                     return redirect('login')
