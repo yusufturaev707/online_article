@@ -20,7 +20,9 @@ urlpatterns = [
 
     path('authors/<int:pk>/', get_article_authors, name='get_article_authors'),
     path('author/add/<int:pk>/', add_author, name='add_author'),
+    path('author/edit/', edit_author_base_url, name='edit_author_base_url'),
     path('author/edit/<int:pk>/', edit_author, name='edit_author'),
+    path('author/delete/', delete_author_base_url, name='delete_author_base_url'),
     path('author/delete/<int:pk>/', delete_author, name='delete_author'),
 
     path('send_message/', base_send_message, name='base_send_message'),

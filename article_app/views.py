@@ -893,17 +893,20 @@ def delete_article(request, pk):
     else:
         return render(request, 'article_app/crud/delete_article.html', {'article': article})
 
+@login_required(login_url='login')
+def edit_author_base_url(request):
+    return HttpResponse('ok')
+
+@login_required(login_url='login')
+def delete_author_base_url(request):
+    return HttpResponse('ok')
 
 @login_required(login_url='login')
 @allowed_users(role=['admin', 'editor', 'reviewer', 'author'])
 def get_article_authors(request, pk):
     authors = ExtraAuthor.objects.filter(article_id=pk).order_by('id')
-    lang = get_language()
-    edit_url = f"/{lang}/author/edit/"
-    delete_url = f"/{lang}/author/delete/"
-    if lang == 'uz':
-        edit_url = f"/author/edit/"
-        delete_url = f"/author/delete/"
+    edit_url = reverse('edit_author_base_url')
+    delete_url = reverse('delete_author_base_url')
 
     data = {
         "authors": list(authors.values(

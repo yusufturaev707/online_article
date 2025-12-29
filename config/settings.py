@@ -18,7 +18,7 @@ ALLOWED_HOSTS = ['*']
 # SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Session xavfsizlik sozlamalari
-SESSION_COOKIE_AGE = 1800  # 30 daqiqa (1800 sekund) - maksimal session davomiyligi
+SESSION_COOKIE_AGE = 300  # 30 daqiqa (1800 sekund) - maksimal session davomiyligi
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Brauzer yopilganda session o'chadi
 SESSION_SAVE_EVERY_REQUEST = True  # Har bir so'rovda session yangilanadi (sliding expiration)
 SESSION_COOKIE_SECURE = True  # Cookie faqat HTTPS orqali yuboriladi
@@ -27,7 +27,7 @@ SESSION_COOKIE_SAMESITE = 'Lax'  # CSRF himoyasi
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
 # Session harakatsizlik vaqti (daqiqada) - middleware tomonidan tekshiriladi
-SESSION_INACTIVITY_TIMEOUT = 15  # 15 daqiqa harakatsizlikdan keyin session o'chadi
+SESSION_INACTIVITY_TIMEOUT = 3  # 15 daqiqa harakatsizlikdan keyin session o'chadi
 
 # CSRF xavfsizlik sozlamalari
 CSRF_COOKIE_SECURE = True
