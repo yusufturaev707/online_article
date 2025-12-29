@@ -20,7 +20,7 @@ from user_app.decorators import unauthenticated_user, allowed_users, orientation
 from django.db.models.query_utils import Q
 from django.db import transaction
 from user_app.forms import *
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, FileResponse, Http404
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 from user_app.models import User, ReviewerArticle, StatusReview, Reviewer, ReviewerEditor, ReviewerEditorStatus
@@ -1147,6 +1147,128 @@ def reviewer_role_list_detail(request, pk):
         "files": files,
     }
     return render(request, "user_app/crud/check_role_reviewer_form.html", context)
+
+
+@login_required(login_url='login')
+def secure_file_download(request, file_id):
+    """
+    Xavfsiz fayl yuklash - XSS hujumlardan himoya.
+    PDF va boshqa fayllar brauzerda ochilmaydi, faqat yuklab olinadi.
+    """
+    import mimetypes
+    import os
+    from urllib.parse import quote
+
+    try:
+        file_obj = ReviewerFile.objects.get(pk=file_id)
+    except ReviewerFile.DoesNotExist:
+        raise Http404(_("Fayl topilmadi"))
+
+    if not file_obj.file:
+        raise Http404(_("Fayl topilmadi"))
+
+    file_path = file_obj.file.path
+
+    if not os.path.exists(file_path):
+        raise Http404(_("Fayl topilmadi"))
+
+    file_name = os.path.basename(file_obj.file.name)
+    file_name_encoded = quote(file_name)
+
+    response = FileResponse(
+        open(file_path, 'rb'),
+        content_type='application/octet-stream'
+    )
+
+    response['Content-Disposition'] = f'attachment; filename="{file_name_encoded}"; filename*=UTF-8\'\'{file_name_encoded}'
+    response['X-Content-Type-Options'] = 'nosniff'
+    response['Content-Security-Policy'] = "default-src 'none'; script-src 'none'"
+    response['X-Frame-Options'] = 'DENY'
+    response['Cache-Control'] = 'private, no-cache, no-store, must-revalidate'
+
+    return response
+
+
+@login_required(login_url='login')
+def secure_article_file_download(request, file_id):
+    """
+    ArticleFile uchun xavfsiz fayl yuklash - XSS hujumlardan himoya.
+    """
+    import os
+    from urllib.parse import quote
+
+    try:
+        file_obj = ArticleFile.objects.get(pk=file_id)
+    except ArticleFile.DoesNotExist:
+        raise Http404(_("Fayl topilmadi"))
+
+    if not file_obj.file:
+        raise Http404(_("Fayl topilmadi"))
+
+    file_path = file_obj.file.path
+
+    if not os.path.exists(file_path):
+        raise Http404(_("Fayl topilmadi"))
+
+    file_name = os.path.basename(file_obj.file.name)
+    file_name_encoded = quote(file_name)
+
+    response = FileResponse(
+        open(file_path, 'rb'),
+        content_type='application/octet-stream'
+    )
+
+    response['Content-Disposition'] = f'attachment; filename="{file_name_encoded}"; filename*=UTF-8\'\'{file_name_encoded}'
+    response['X-Content-Type-Options'] = 'nosniff'
+    response['Content-Security-Policy'] = "default-src 'none'; script-src 'none'"
+    response['X-Frame-Options'] = 'DENY'
+    response['Cache-Control'] = 'private, no-cache, no-store, must-revalidate'
+
+    return response
+
+
+@login_required(login_url='login')
+def secure_article_pdf_download(request, article_id, file_type='pdf'):
+    """
+    Article.filePDF yoki Article.checked_upload_file uchun xavfsiz yuklash.
+    file_type: 'pdf' = filePDF, 'checked' = checked_upload_file
+    """
+    import os
+    from urllib.parse import quote
+
+    try:
+        article = Article.objects.get(pk=article_id)
+    except Article.DoesNotExist:
+        raise Http404(_("Maqola topilmadi"))
+
+    if file_type == 'checked':
+        file_field = article.checked_upload_file
+    else:
+        file_field = article.filePDF
+
+    if not file_field:
+        raise Http404(_("Fayl topilmadi"))
+
+    file_path = file_field.path
+
+    if not os.path.exists(file_path):
+        raise Http404(_("Fayl topilmadi"))
+
+    file_name = os.path.basename(file_field.name)
+    file_name_encoded = quote(file_name)
+
+    response = FileResponse(
+        open(file_path, 'rb'),
+        content_type='application/octet-stream'
+    )
+
+    response['Content-Disposition'] = f'attachment; filename="{file_name_encoded}"; filename*=UTF-8\'\'{file_name_encoded}'
+    response['X-Content-Type-Options'] = 'nosniff'
+    response['Content-Security-Policy'] = "default-src 'none'; script-src 'none'"
+    response['X-Frame-Options'] = 'DENY'
+    response['Cache-Control'] = 'private, no-cache, no-store, must-revalidate'
+
+    return response
 
 
 @login_required(login_url='login')

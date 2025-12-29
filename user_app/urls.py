@@ -42,6 +42,10 @@ urlpatterns = [
     path('choosen_reviewer_role/', choose_roles, name='choosen_reviewer_role'),
     path('choosen_reviewer_role_list/', reviewer_role_list, name='choosen_reviewer_role_list'),
     path('choosen_reviewer_role_list/<int:pk>/', reviewer_role_list_detail, name='reviewer_role_list_detail'),
+    path('secure-download/<int:file_id>/', secure_file_download, name='secure_file_download'),
+    path('secure-download/article-file/<int:file_id>/', secure_article_file_download, name='secure_article_file_download'),
+    path('secure-download/article-pdf/<int:article_id>/', secure_article_pdf_download, name='secure_article_pdf_download'),
+    path('secure-download/article-pdf/<int:article_id>/<str:file_type>/', secure_article_pdf_download, name='secure_article_pdf_download_type'),
 
     path('edit_profile/', edit_profile, name='edit_profile'),
     path('load_menus/', load_menus, name='load_menus'),

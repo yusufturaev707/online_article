@@ -79,7 +79,7 @@
                                         </p>
                                         <p class="card-text">
                                             {% if article.file %}
-                                                <a href='{{ article.filePDF.url }}' type="button" target="_blank"
+                                                <a href="{% url 'secure_article_pdf_download' article.id %}"
                                                    class="btn btn-outline-warning btn-sm forshadow"><span><i
                                                         class="fas fa-fw m-r-5 fa-file"></i> {% trans "Fayl" %}</span></a>
                                             {% endif %}
@@ -408,7 +408,7 @@
                                     </p>
                                     <p class="card-text">
                                         {% if finished_article.file %}
-                                            <a href='{{ finished_article.file.file.url }}' download role='button'
+                                            <a href="{% url 'secure_article_file_download' finished_article.file.id %}"
                                                class="btn btn-outline-warning btn-sm forshadow"><span><i
                                                     class="fas fa-fw m-r-5 fa-file"></i> {% trans "Fayl" %}</span></a>
                                         {% endif %}
@@ -434,7 +434,7 @@
                                                 {% endif %}
                                         ><i class="fa fa-trash"></i></button>
                                         {% if finished_article.is_publish_journal and finished_article.filePDF is not None %}
-                                            <a href="{{ finished_article.filePDF.url }}" target="_blank"
+                                            <a href="{% url 'secure_article_pdf_download' finished_article.id %}"
                                                class="btn btn-outline-success btn-sm forshadow"><span><i
                                                     class="fas fa-fw m-r-5 fa-file"></i> {% trans "Maqolangizni yuklab olish" %}</span></a>
                                         {% endif %}
@@ -764,7 +764,7 @@
                                         </p>
                                         <p class="card-text">
                                             {% if article.file %}
-                                                <a href='{{ article.file.file.url }}' download role='button'
+                                                <a href="{% url 'secure_article_file_download' article.file.id %}"
                                                    class="btn btn-outline-warning btn-sm forshadow"><span><i
                                                         class="fas fa-fw m-r-5 fa-file"></i> {% trans "Fayl" %}</span></a>
                                             {% endif %}
@@ -789,7 +789,7 @@
                                             ><i
                                                     class="fa fa-trash"></i></button>
                                             {% if article.is_publish_journal %}
-                                                <a href='{{ article.filePDF.url }}' target="_blank"
+                                                <a href="{% url 'secure_article_pdf_download' article.id %}"
                                                    class="btn btn-outline-success btn-sm forshadow"><span><i
                                                         class="fas fa-fw m-r-5 fa-file"></i> {% trans "Maqolangizni yuklab olish" %}</span></a>
                                             {% endif %}

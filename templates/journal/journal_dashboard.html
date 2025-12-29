@@ -86,7 +86,7 @@
                                     </label>
                                 </td>
                                 <td>
-                                    <a href="{{ article.file.file.url }}" type="button" download
+                                    <a href="{% url 'secure_article_file_download' article.file.id %}"
                                        class="btn btn-outline-info forshadow"><img src="{% static 'img/wordicon.png' %}" alt="" width="40"/></a>
                                 </td>
                                 <td>

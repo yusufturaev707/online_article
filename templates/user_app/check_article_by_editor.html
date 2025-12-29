@@ -35,8 +35,8 @@
                     </tr>
                     <br>
                     <tr>
-                        <td><b>{% trans "Fayl:" %} </b><a class="btn btn-outline-info btn-sm" target="_blank"
-                                                          href="{{ article.filePDF.url }}"><i
+                        <td><b>{% trans "Fayl:" %} </b><a class="btn btn-outline-info btn-sm"
+                                                          href="{% url 'secure_article_pdf_download' article.id %}"><i
                                 class="icon-paper-clip"></i><span> {% trans "To'liq ko'rish" %}</span></a>
                         </td>
                     </tr>

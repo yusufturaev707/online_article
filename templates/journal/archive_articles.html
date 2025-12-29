@@ -34,11 +34,11 @@
                                 <td>{{ object.article.title }}</td>
                                 <td>{{ object.article.created_at|date }}</td>
                                 <td>
-                                    <a href="{{ object.article.file.file.url }}" type="button" download
+                                    <a href="{% url 'secure_article_file_download' object.article.file.id %}"
                                        class="btn btn-outline-info forshadow"><img src="{% static 'img/wordicon.png' %}" alt="" width="30"/></a>
                                 </td>
                                 <td>
-                                    <a href="{{ object.article.filePDF.url }}" target="_blank" class="btn btn-outline-danger forshadow"><i
+                                    <a href="{% url 'secure_article_pdf_download' object.article.id %}" class="btn btn-outline-danger forshadow"><i
                                             class="fa fa-file-pdf fa-lg"></i></a>
                                 </td>
                             <td>

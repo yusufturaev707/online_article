@@ -46,7 +46,7 @@
                     {% for file in files %}
                         <tr>
                             <th class="text-nowrap">{{ forloop.counter }}</th>
-                            <td class="text-nowrap"><a href="{{ file.file.url }}" download="{{ file.file_name }}">{{ file.file_name }}</a></td>
+                            <td class="text-nowrap"><a href="{% url 'secure_file_download' file.id %}">{{ file.file_name }}</a></td>
                         </tr>
                     {% endfor %}
 
