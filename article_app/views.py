@@ -71,9 +71,8 @@ def set_language(request, language=None):
 
     # Qaytish URL'ini olish
     next_url = request.POST.get('next') or request.GET.get('next')
-    print(f"next_url: {next_url}")
-    if not next_url:
-        next_url = request.META.get('HTTP_REFERER', '/ax_clone_site/')
+    # if not next_url:
+    #     next_url = request.META.get('HTTP_REFERER', '/ax_clone_site/')
 
     # URL'ni yangi tilga tarjima qilish
     try:

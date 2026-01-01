@@ -166,7 +166,7 @@
     <script>
         // Captcha refresh
         function refreshCaptcha() {
-            $.getJSON("/ax_clone_site/captcha/refresh/", function(result) {
+            $.getJSON("/captcha/refresh/", function(result) {
                 $('.captcha-image').attr('src', result['image_url']);
                 $('#id_captcha_0').val(result['key']);
             });

@@ -172,12 +172,12 @@
             }).then(function(willContinue) {
                 if (willContinue) {
                     // Refresh session by making a simple request
-                    $.get('/ax_clone_site/profile/api/session-refresh/').fail(function() {
+                    $.get('/profile/api/session-refresh/').fail(function() {
                         // If no such endpoint, just reload
                         window.location.reload();
                     });
                 } else {
-                    window.location.href = '/ax_clone_site/profile/logout/';
+                    window.location.href = '/profile/logout/';
                 }
             });
         }
