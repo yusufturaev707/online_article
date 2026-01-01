@@ -76,7 +76,7 @@ INSTALLED_APPS = [
     'django_bleach',
 ]
 
-CKEDITOR_UPLOAD_PATH = "ax_clone_site/uploads/"
+CKEDITOR_UPLOAD_PATH = "uploads/"
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -159,13 +159,7 @@ LANGUAGE_CODE = 'uz'
 TIME_ZONE = 'Asia/Tashkent'
 
 USE_I18N = True
-LANGUAGE_COOKIE_NAME = 'clone_django_language'
-LANGUAGE_COOKIE_AGE = None
-LANGUAGE_COOKIE_DOMAIN = None
-LANGUAGE_COOKIE_PATH = '/ax_clone_site/'
-
 USE_L10N = True
-
 USE_TZ = True
 
 LANGUAGES = [
@@ -185,12 +179,12 @@ MODELTRANSLATION_LANGUAGES = ('uz', 'en', 'ru')
 # MODELTRANSLATION_PREPOPULATE_LANGUAGE = 'uz'
 
 
-LOGIN_REDIRECT_URL = "/ax_clone_site/"
-LOGIN_URL = '/ax_clone_site/login/'
+LOGIN_REDIRECT_URL = "/"
+LOGIN_URL = 'login/'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
-STATIC_URL = '/ax_clone_site/static/'
-MEDIA_URL = '/ax_clone_site/media/'
+STATIC_URL = '/static/'
+MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
 AUTH_USER_MODEL = 'user_app.User'
